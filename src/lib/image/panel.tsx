@@ -1,10 +1,10 @@
 import ImageUpload from './upload'
-import ImagePreview from './preview'
+import PreviewContainer from '../preview/container'
 
 export default function ImagePanel() {
   return (
-    <div className="grid p-4 rounded bg-neutral-900 place-items-center">
-      <ImagePreview />
+    <div className="grid rounded bg-neutral-900 place-items-center">
+      <PreviewContainer />
       <ImageUpload />
     </div>
   )

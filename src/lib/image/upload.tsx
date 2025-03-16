@@ -59,7 +59,7 @@ export default function ImageUpload() {
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full p-4">
       <label
         className={cn(
           'flex flex-col items-center justify-center gap-4 p-24 transition-colors duration-100 border-1 w-full h-full border-dashed rounded cursor-pointer text-neutral-400',

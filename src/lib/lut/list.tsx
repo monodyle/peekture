@@ -16,13 +16,18 @@ export default function LUTList() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 overflow-y-auto">
-      {luts.map((lut) => (
-        <div key={lut.id} className="space-y-2" title={lut.name}>
-          <div className="aspect-[5/4] w-full bg-neutral-800 rounded" />
-          <div className="text-sm truncate">{lut.name}</div>
-        </div>
-      ))}
+    <div className="space-y-2">
+      <p className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
+        Filters
+      </p>
+      <div className="grid grid-cols-2 gap-2 overflow-y-auto">
+        {luts.map((lut) => (
+          <div key={lut.id} className="space-y-2" title={lut.name}>
+            <div className="aspect-[5/4] w-full bg-neutral-800 rounded" />
+            <div className="text-sm truncate">{lut.name}</div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

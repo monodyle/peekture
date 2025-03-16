@@ -23,6 +23,9 @@ importers:
       lucide-react:
         specifier: ^0.482.0
         version: 0.482.0(react@19.0.0)
+      nanoid:
+        specifier: ^5.1.4
+        version: 5.1.4
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -430,6 +433,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@5.1.4:
+    resolution: {integrity: sha512-GTFcMIDgR7tqji/LpSY8rtg464VnJl/j6ypoehYnuGb+Y8qZUdtKB8WVCXon0UEZgFDbuUxpIl//6FHLHgXSNA==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -776,6 +784,8 @@ snapshots:
       react: 19.0.0
 
   nanoid@3.3.10: {}
+
+  nanoid@5.1.4: {}
 
   picocolors@1.1.1: {}
 

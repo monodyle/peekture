@@ -1,8 +1,9 @@
 import type { Draft } from 'immer'
 import { produce } from 'immer'
+import type { LUT } from './lut/types'
 
 type Store = {
-  luts: Array<string>
+  luts: Array<LUT>
 }
 
 const defaultStore: Store = {

@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Instrument Sans', sans-serif;
+}
+
+@layer utilities {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+@layer components {
+  body {
+    @apply min-h-screen overflow-hidden bg-neutral-950 text-neutral-50 font-sans;
+  }
+}

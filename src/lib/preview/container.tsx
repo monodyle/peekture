@@ -11,6 +11,11 @@ export default function PreviewContainer() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
+  const resetView = useCallback(() => {
+    setScale(1)
+    setPosition({ x: 0, y: 0 })
+  }, [])
+
   const handleZoom = useCallback((delta: number) => {
     setScale((prevScale) => {
       const newScale = prevScale + delta
@@ -53,8 +58,7 @@ export default function PreviewContainer() {
           handleZoom(-0.1)
         } else if (e.key === '0') {
           e.preventDefault()
-          setScale(1)
-          setPosition({ x: 0, y: 0 })
+          resetView()
         }
       }
     }
@@ -75,7 +79,7 @@ export default function PreviewContainer() {
       containerRef.current?.removeEventListener('wheel', handleWheel)
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [handleZoom])
+  }, [handleZoom, resetView])
 
   if (!image) return null
 
@@ -91,6 +95,7 @@ export default function PreviewContainer() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onDoubleClick={resetView}
       >
         <img
           src={image}

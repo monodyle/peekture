@@ -20,7 +20,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ImageStateProvider>
-        <div className="grid grid-cols-[auto_300px] min-h-screen p-4 gap-4">
+        <div className="grid grid-cols-[auto_300px] h-screen p-4 gap-4">
           <ImagePanel />
           <Sidebar />
         </div>

@@ -80,7 +80,7 @@ export default function PreviewContainer() {
   if (!image) return null
 
   return (
-    <div className="w-full h-full flex overflow-hidden select-none relative">
+    <div className="relative flex w-full h-full overflow-hidden rounded-lg select-none">
       <div
         ref={containerRef}
         className={cn(
@@ -98,7 +98,7 @@ export default function PreviewContainer() {
           className="max-w-full max-h-full pointer-events-none"
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+            transition: isDragging ? 'none' : 'transform 100ms ease-out',
           }}
         />
       </div>

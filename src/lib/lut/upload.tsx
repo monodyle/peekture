@@ -65,12 +65,12 @@ export default function LUTUpload() {
   return (
     <label
       className={cn(
-        'flex items-center gap-1 border rounded cursor-pointer',
+        'flex items-center gap-1 border rounded',
         'px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500',
         'transition-colors duration-100',
         isDragging
           ? 'border-blue-500 bg-blue-500/10'
-          : 'border-transparent bg-neutral-800',
+          : 'border-transparent bg-neutral-800 hover:bg-neutral-700 hover:text-neutral-200',
       )}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -87,12 +87,12 @@ export default function LUTUpload() {
       />
       {isUploading ? (
         <>
-          <Loader2 className="size-3 text-neutral-500 animate-spin" />
+          <Loader2 className="size-3 animate-spin" />
           <span>Uploading...</span>
         </>
       ) : (
         <>
-          <CloudUpload className="size-3 text-neutral-500" />
+          <CloudUpload className="size-3" />
           <span>Upload</span>
         </>
       )}

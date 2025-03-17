@@ -45,9 +45,9 @@ export default function CreativeInput() {
         </div>
         <button
           type="button"
-          className="flex items-center gap-1 border rounded cursor-pointer px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500 transition-colors duration-100 border-transparent bg-neutral-800"
+          className="flex items-center gap-1 border rounded px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500 transition-colors duration-100 border-transparent bg-neutral-800 hover:bg-neutral-700 hover:text-neutral-200"
           onClick={handleGenerate}
-          disabled={isGenerating}
+          disabled={isGenerating || !prompt || !geminiApiKey}
         >
           {isGenerating ? (
             <>
@@ -90,7 +90,7 @@ export default function CreativeInput() {
             <button
               type="button"
               onClick={toggleShowApiKey}
-              className="text-xs bg-neutral-800 rounded font-medium px-1.5 py-1 text-neutral-500"
+              className="text-xs bg-neutral-800 rounded font-medium px-1.5 py-1 text-neutral-500 hover:bg-neutral-700 hover:text-neutral-200"
             >
               {isShowApiKey ? 'Hide' : 'Show'}
             </button>

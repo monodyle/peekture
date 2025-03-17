@@ -1,6 +1,5 @@
 import Histogram from './histogram'
 import LUTList from './lut/list'
-import LUTUpload from './lut/upload'
 
 export default function Sidebar() {
   return (
@@ -8,7 +7,6 @@ export default function Sidebar() {
       <div className="space-y-4">
         <Histogram />
         <LUTList />
-        <LUTUpload />
       </div>
     </div>
   )

@@ -1,9 +1,10 @@
-import LUTPreview from './preview'
-import { useImage } from '../image/state'
-import { useLUTs } from './get-all-lut'
-import { useSetLUT, useLUT } from './state'
-import { createDefaultLUT } from './default'
 import { cn } from '../cn'
+import { useImage } from '../image/state'
+import { createDefaultLUT } from './default'
+import { useLUTs } from './get-all-lut'
+import LUTPreview from './preview'
+import { useLUT, useSetLUT } from './state'
+import LUTUpload from './upload'
 
 const defaultLUT = createDefaultLUT()
 
@@ -27,9 +28,12 @@ export default function LUTList() {
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
-        Filters
-      </p>
+      <div className="flex items-center justify-between">
+        <div className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
+          Filters
+        </div>
+        <LUTUpload />
+      </div>
       <div className="grid grid-cols-2 gap-2 p-2 -mx-2">
         {[defaultLUT, ...luts].map((lut) => (
           <button

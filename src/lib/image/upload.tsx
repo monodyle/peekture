@@ -1,15 +1,12 @@
 import { HardDriveUpload } from 'lucide-react'
 import { useState } from 'react'
 import type { ChangeEvent, DragEvent } from 'react'
-import { useImage, useSetImage } from './state'
+import { useSetImage } from './state'
 import { cn } from '../cn'
 
 export default function ImageUpload() {
-  const image = useImage()
   const setImage = useSetImage()
   const [isDragging, setIsDragging] = useState(false)
-
-  if (image) return null
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -78,7 +75,7 @@ export default function ImageUpload() {
         </div>
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpg,image/jpeg,image/png"
           className="hidden"
           onChange={handleImageChange}
         />

@@ -84,39 +84,41 @@ export default function PreviewContainer() {
   if (!image) return null
 
   return (
-    <div className="relative flex w-full h-full overflow-hidden rounded-lg select-none">
-      <div
-        ref={containerRef}
-        className={cn(
-          'relative w-full h-full flex items-center justify-center',
-          isDragging && 'cursor-grabbing',
-        )}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onDoubleClick={resetView}
-      >
+    <div className="grid max-h-full overflow-hidden rounded bg-neutral-900 place-items-center">
+      <div className="relative flex w-full h-full overflow-hidden rounded-lg select-none">
         <div
-          className="max-w-full max-h-full select-none"
-          style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-            transition: isDragging ? 'none' : 'transform 100ms ease-out',
-          }}
+          ref={containerRef}
+          className={cn(
+            'relative w-full h-full flex items-center justify-center',
+            isDragging && 'cursor-grabbing',
+          )}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onDoubleClick={resetView}
         >
-          <img
-            src={image}
-            alt="preview"
-            className="pointer-events-none max-w-full max-h-full"
+          <div
+            className="max-w-full max-h-full select-none"
+            style={{
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transition: isDragging ? 'none' : 'transform 100ms ease-out',
+            }}
+          >
+            <img
+              src={image}
+              alt="preview"
+              className="pointer-events-none max-w-full max-h-full"
+            />
+          </div>
+        </div>
+        <div className="absolute bottom-2 right-2">
+          <ZoomLevel
+            scale={scale}
+            zoomIn={() => handleZoom(0.1)}
+            zoomOut={() => handleZoom(-0.1)}
           />
         </div>
-      </div>
-      <div className="absolute bottom-2 right-2">
-        <ZoomLevel
-          scale={scale}
-          zoomIn={() => handleZoom(0.1)}
-          zoomOut={() => handleZoom(-0.1)}
-        />
       </div>
     </div>
   )

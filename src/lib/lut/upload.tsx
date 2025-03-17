@@ -1,4 +1,4 @@
-import { Loader2, Upload } from 'lucide-react'
+import { CloudUpload, Loader2 } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { cn } from '../cn'
 import persisted from '../persisted'
@@ -63,40 +63,39 @@ export default function LUTUpload() {
   )
 
   return (
-    <div>
-      <label
-        className={cn(
-          'flex items-center gap-2 p-2 border rounded cursor-pointer',
-          'transition-colors duration-100',
-          isDragging
-            ? 'border-blue-500 bg-blue-500/10'
-            : 'border-transparent bg-neutral-800',
-        )}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        <input
-          type="file"
-          className="hidden"
-          accept=".cube"
-          multiple
-          disabled={isUploading}
-          onChange={handleChange}
-        />
-        {isUploading ? (
-          <div className="flex items-center gap-2">
-            <Loader2 className="size-4 text-neutral-500 animate-spin" />
-            <span className="text-sm">Uploading...</span>
-          </div>
-        ) : (
-          <>
-            <Upload className="size-4 text-neutral-500" />
-            <span className="text-sm">Add new filter</span>
-          </>
-        )}
-      </label>
-    </div>
+    <label
+      className={cn(
+        'flex items-center gap-1 border rounded cursor-pointer',
+        'px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500',
+        'transition-colors duration-100',
+        isDragging
+          ? 'border-blue-500 bg-blue-500/10'
+          : 'border-transparent bg-neutral-800',
+      )}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <input
+        type="file"
+        className="hidden"
+        accept=".cube"
+        multiple
+        disabled={isUploading}
+        onChange={handleChange}
+      />
+      {isUploading ? (
+        <>
+          <Loader2 className="size-3 text-neutral-500 animate-spin" />
+          <span>Uploading...</span>
+        </>
+      ) : (
+        <>
+          <CloudUpload className="size-3 text-neutral-500" />
+          <span>Upload</span>
+        </>
+      )}
+    </label>
   )
 }

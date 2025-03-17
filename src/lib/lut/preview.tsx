@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import type { LUT } from '../lut/types'
-import applyLUT from './appy'
+import applyLUT from './apply'
 
 type ImageRenderProps = {
   image: string

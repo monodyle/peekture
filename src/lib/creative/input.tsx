@@ -1,5 +1,5 @@
 import { Loader2, Sparkles } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useReducer, useState } from 'react'
 import persisted from '../persisted'
 import { useGenerative } from './use-generative'
 import { useImage, useSetImage } from '../image/state'
@@ -21,6 +21,7 @@ export default function CreativeInput() {
     },
     [],
   )
+  const [isShowApiKey, toggleShowApiKey] = useReducer((state) => !state, false)
 
   const { mutateAsync: generate, isPending: isGenerating } = useGenerative()
 
@@ -77,14 +78,23 @@ export default function CreativeInput() {
           >
             Gemini API Key
           </label>
-          <input
-            type="text"
-            className="w-full rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-500 focus:outline-none"
-            id="gemini-api-key"
-            value={geminiApiKey}
-            onChange={handleGeminiApiKeyChange}
-            disabled={isGenerating}
-          />
+          <div className="flex items-center gap-1">
+            <input
+              type={isShowApiKey ? 'text' : 'password'}
+              className="w-full rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-500 focus:outline-none focus:text-neutral-200"
+              id="gemini-api-key"
+              value={geminiApiKey}
+              onChange={handleGeminiApiKeyChange}
+              disabled={isGenerating}
+            />
+            <button
+              type="button"
+              onClick={toggleShowApiKey}
+              className="text-xs bg-neutral-800 rounded font-medium px-1.5 py-1 text-neutral-500"
+            >
+              {isShowApiKey ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
         <div className="space-y-1">
           <label
@@ -94,7 +104,7 @@ export default function CreativeInput() {
             Creative Prompt
           </label>
           <textarea
-            className="w-full rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-500 focus:outline-none h-16 resize-none"
+            className="w-full rounded bg-neutral-800 px-2 py-1 text-xs text-neutral-500 focus:outline-none h-16 resize-none focus:text-neutral-200"
             id="creative-prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}

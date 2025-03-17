@@ -21,8 +21,8 @@ export default function LUTList() {
   }
 
   return (
-    <div className="space-y-2 flex flex-col flex-1 overflow-hidden">
-      <div className="flex items-center justify-between sticky top-0 bg-neutral-900 z-10 py-1">
+    <div className="gap-2 flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-shrink-0 items-center justify-between sticky top-0 bg-neutral-900 z-10 py-1">
         <div className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
           Filters
         </div>

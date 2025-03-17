@@ -88,7 +88,7 @@ export default function Histogram() {
   }, [image])
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2 flex-shrink-0">
       <p className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
         Histogram
       </p>

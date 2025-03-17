@@ -1,7 +1,7 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
-  --font-sans: 'Instrument Sans', sans-serif;
+  --font-sans: "Instrument Sans", sans-serif;
 }
 
 @layer utilities {
@@ -13,5 +13,23 @@
 @layer components {
   body {
     @apply min-h-screen overflow-hidden bg-neutral-950 text-neutral-50 font-sans;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    @apply bg-neutral-800;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-700;
   }
 }

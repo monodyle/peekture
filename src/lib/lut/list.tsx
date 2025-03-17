@@ -21,18 +21,16 @@ export default function LUTList() {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
+    <div className="space-y-2 flex flex-col flex-1 overflow-hidden">
+      <div className="flex items-center justify-between sticky top-0 bg-neutral-900 z-10 py-1">
         <div className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
           Filters
         </div>
         <LUTUpload />
       </div>
-      {!luts || luts.length === 0 ? (
-        <div className="text-xs text-neutral-500">No LUTs found</div>
-      ) : (
-        <div className="grid grid-cols-2 gap-2 p-2 -mx-2">
-          {[defaultLUT, ...luts].map((lut) => (
+      <div className="flex-1 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-2 p-2 flex-1">
+          {[defaultLUT, ...(luts ?? [])].map((lut) => (
             <button
               key={lut.id}
               type="button"
@@ -53,7 +51,7 @@ export default function LUTList() {
             </button>
           ))}
         </div>
-      )}
+      </div>
     </div>
   )
 }

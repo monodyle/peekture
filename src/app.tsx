@@ -13,8 +13,7 @@ export default function App() {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    persisted.init()
-    setIsReady(true)
+    persisted.init().then(() => setIsReady(true))
   }, [])
 
   if (!isReady) return null

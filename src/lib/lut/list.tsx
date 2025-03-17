@@ -40,14 +40,16 @@ export default function LUTList() {
             key={lut.id}
             type="button"
             className={cn(
-              'w-full text-left space-y-1.5 cursor-pointer rounded',
-              currentLUT?.id === lut.id && 'bg-neutral-800',
+              'w-full text-left space-y-0.5 cursor-pointer rounded',
+              currentLUT.id === lut.id && 'bg-neutral-800 outline-2 outline-blue-500',
             )}
             title={lut.name}
             onClick={() => setLUT(lut)}
           >
-            <div className="aspect-[5/4] w-full bg-neutral-800 overflow-hidden rounded">
-              {image && <LUTPreview image={image} lut={lut} />}
+            <div className="p-1">
+              <div className="aspect-[5/4] w-full overflow-hidden rounded">
+                {image && <LUTPreview image={image} lut={lut} />}
+              </div>
             </div>
             <div className="text-xs truncate px-2 pb-1">{lut.name}</div>
           </button>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '../cn'
 import { useImage } from '../image/state'
+import Render from './render'
 import ZoomLevel from './zoom-level'
 
 export default function PreviewContainer() {
@@ -105,11 +106,7 @@ export default function PreviewContainer() {
               transition: isDragging ? 'none' : 'transform 100ms ease-out',
             }}
           >
-            <img
-              src={image}
-              alt="preview"
-              className="pointer-events-none max-w-full max-h-full"
-            />
+            <Render />
           </div>
         </div>
         <div className="absolute bottom-2 right-2">

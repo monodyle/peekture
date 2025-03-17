@@ -4,7 +4,7 @@ import PreviewContainer from './preview/container'
 import Sidebar from './sidebar'
 
 export default function Screen() {
-  const image = useImage()
+  const { image } = useImage()
 
   if (!image) {
     return (

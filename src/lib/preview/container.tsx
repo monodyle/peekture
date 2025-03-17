@@ -4,7 +4,7 @@ import { useImage } from '../image/state'
 import ZoomLevel from './zoom-level'
 
 export default function PreviewContainer() {
-  const image = useImage()
+  const { image } = useImage()
   const containerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   const [isDragging, setIsDragging] = useState(false)

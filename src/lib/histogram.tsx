@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useImage } from './image/state'
 
 export default function Histogram() {
-  const image = useImage()
+  const { image } = useImage()
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {

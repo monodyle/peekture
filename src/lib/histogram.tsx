@@ -87,8 +87,6 @@ export default function Histogram() {
     }
   }, [image])
 
-  if (!image) return null
-
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold tracking-tight uppercase text-neutral-500">

@@ -97,15 +97,19 @@ export default function PreviewContainer() {
         onMouseLeave={handleMouseUp}
         onDoubleClick={resetView}
       >
-        <img
-          src={image}
-          alt="preview"
-          className="max-w-full max-h-full pointer-events-none"
+        <div
+          className="max-w-full max-h-full select-none"
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transition: isDragging ? 'none' : 'transform 100ms ease-out',
           }}
-        />
+        >
+          <img
+            src={image}
+            alt="preview"
+            className="pointer-events-none max-w-full max-h-full"
+          />
+        </div>
       </div>
       <div className="absolute bottom-2 right-2">
         <ZoomLevel

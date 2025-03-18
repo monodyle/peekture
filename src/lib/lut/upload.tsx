@@ -4,7 +4,6 @@ import { cn } from '../cn'
 import persisted from '../persisted'
 import { useLUTs } from './use-luts'
 import type { LUT } from './types'
-import codec from '../codec'
 import { nanoid } from 'nanoid'
 
 export default function LUTUpload() {
@@ -43,8 +42,7 @@ export default function LUTUpload() {
       setIsUploading(true)
       const luts: Array<LUT> = []
       for (const file of Array.from(files)) {
-        const arrayBuffer = await file.arrayBuffer()
-        const data = codec.encode(arrayBuffer)
+        const data = await file.text()
         luts.push({
           id: nanoid(),
           name: file.name.replace(/\.[^/.]+$/, ''),

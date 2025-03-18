@@ -6,7 +6,7 @@ import { useImage, useSetImage } from '../image/state'
 
 export default function CreativeInput() {
   const [prompt, setPrompt] = useState('')
-  const { image, mimeType } = useImage()
+  const image = useImage()
   const setImage = useSetImage()
 
   const [geminiApiKey, setGeminiApiKey] = useState(() =>
@@ -26,16 +26,16 @@ export default function CreativeInput() {
   const { mutateAsync: generate, isPending: isGenerating } = useGenerative()
 
   const handleGenerate = useCallback(async () => {
-    if (!image || !mimeType) {
+    if (!image) {
       console.error('Please upload an image first')
       return
     }
 
-    const result = await generate({ prompt, image, mimeType })
-    setImage(`data:${result.mimeType};base64,${result.image}`, result.mimeType)
+    const result = await generate({ prompt, image })
+    setImage(`data:${result.mimeType};base64,${result.image}`)
 
     setPrompt('')
-  }, [generate, prompt, image, mimeType, setImage])
+  }, [generate, prompt, image, setImage])
 
   return (
     <div className="flex-shrink-0">

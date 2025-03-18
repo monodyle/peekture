@@ -16,7 +16,7 @@ export default function ImageUpload() {
 
     const reader = new FileReader()
     reader.onloadend = () => {
-      setImage(reader.result as string, file.type)
+      setImage(reader.result as string)
     }
     reader.readAsDataURL(file)
   }

@@ -4,13 +4,13 @@ import { useLUT } from '../lut/state'
 import applyLUT from '../lut/apply'
 
 export default function Render() {
-  const { image, mimeType } = useImage()
-  const lut = useLUT()
+  const image = useImage()
+  // const lut = useLUT()
   const containerRef = useRef<HTMLCanvasElement>(null)
   // const [isRendering, setIsRendering] = useState(false)
 
   useEffect(() => {
-    if (!image || !mimeType || !containerRef.current) {
+    if (!image || !containerRef.current) {
       return
     }
 
@@ -39,12 +39,12 @@ export default function Render() {
 
       ctx.drawImage(imageElement, x, y, scaledWidth, scaledHeight)
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const applied = applyLUT(imageData, lut)
+      // const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      // const applied = applyLUT(imageData, lut)
 
-      ctx.putImageData(applied, 0, 0)
+      // ctx.putImageData(applied, 0, 0)
     }
-  }, [image, mimeType, lut])
+  }, [image])
 
   return <canvas ref={containerRef} />
 }

@@ -9,7 +9,7 @@ import LUTUpload from './upload'
 const defaultLUT = createDefaultLUT()
 
 export default function LUTList() {
-  const { image } = useImage()
+  const image = useImage()
   const { data: luts, isFetching } = useLUTs()
   const setLUT = useSetLUT()
   const currentLUT = useLUT()

@@ -12,12 +12,10 @@ export function useGenerative() {
     mutationFn: async ({
       prompt,
       image,
-      mimeType,
       history,
     }: {
       prompt: string
       image: string
-      mimeType: string
       history?: Array<Content>
     }) => {
       const apiKey = persisted.read((state) => state.geminiApiKey)
@@ -28,7 +26,7 @@ export function useGenerative() {
       const client = new GoogleGenerativeAI(apiKey)
 
       const model = client.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.0-flash-exp-image-generation',
         generationConfig: {
           temperature: 1,
           topP: 0.95,
@@ -46,9 +44,12 @@ export function useGenerative() {
       messageParts.push({ text: prompt })
 
       const imageParts = image.split(',')
+      const mimeType = image.includes('image/png') ? 'image/png' : 'image/jpeg'
+      const data = imageParts[1]
+
       messageParts.push({
         inlineData: {
-          data: imageParts[1],
+          data,
           mimeType,
         },
       })
@@ -58,7 +59,7 @@ export function useGenerative() {
       let responseMimeType = 'image/png'
 
       if (response.candidates && response.candidates.length > 0) {
-        const parts = response.candidates[0].content.parts
+        const parts = response.candidates[0].content?.parts ?? []
         for (const part of parts) {
           if ('inlineData' in part && part.inlineData) {
             imageData = part.inlineData.data

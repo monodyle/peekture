@@ -14,10 +14,15 @@ function lerpRGB(c1: RGB, c2: RGB, t: number): RGB {
 function trilinearInterpolation(
   lutData: LUTData,
   size: number,
-  x: number,
-  y: number,
-  z: number,
+  xIn: number,
+  yIn: number,
+  zIn: number,
 ): RGB {
+  // Ensure coordinates are within bounds
+  const x = Math.max(0, Math.min(size - 1, xIn))
+  const y = Math.max(0, Math.min(size - 1, yIn))
+  const z = Math.max(0, Math.min(size - 1, zIn))
+
   const x1 = Math.floor(x)
   const y1 = Math.floor(y)
   const z1 = Math.floor(z)
@@ -29,14 +34,14 @@ function trilinearInterpolation(
   const yf = y - y1
   const zf = z - z1
 
-  const c000 = lutData[x1][y1][z1]
-  const c001 = lutData[x1][y1][z2]
-  const c010 = lutData[x1][y2][z1]
-  const c011 = lutData[x1][y2][z2]
-  const c100 = lutData[x2][y1][z1]
-  const c101 = lutData[x2][y1][z2]
-  const c110 = lutData[x2][y2][z1]
-  const c111 = lutData[x2][y2][z2]
+  const c000 = lutData[z1][y1][x1]
+  const c001 = lutData[z2][y1][x1]
+  const c010 = lutData[z1][y2][x1]
+  const c011 = lutData[z2][y2][x1]
+  const c100 = lutData[z1][y1][x2]
+  const c101 = lutData[z2][y1][x2]
+  const c110 = lutData[z1][y2][x2]
+  const c111 = lutData[z2][y2][x2]
 
   const c00 = lerpRGB(c000, c001, zf)
   const c01 = lerpRGB(c010, c011, zf)
@@ -86,7 +91,11 @@ export default function applyLUT(imageData: ImageData, lut: LUT) {
     .map(() =>
       Array(size)
         .fill(0)
-        .map(() => Array(size).fill([0, 0, 0])),
+        .map(() =>
+          Array(size)
+            .fill(0)
+            .map(() => [0, 0, 0] as RGB),
+        ),
     )
 
   // Parse LUT data
@@ -104,15 +113,20 @@ export default function applyLUT(imageData: ImageData, lut: LUT) {
 
     const values = trimmedLine.split(/\s+/)
     if (values.length === 3 && !Number.isNaN(Number.parseFloat(values[0]))) {
-      const r = Math.floor(Number.parseFloat(values[0]) * 255)
-      const g = Math.floor(Number.parseFloat(values[1]) * 255)
-      const b = Math.floor(Number.parseFloat(values[2]) * 255)
+      // Keep values in normalized form [0,1] for better precision
+      const r = Number.parseFloat(values[0])
+      const g = Number.parseFloat(values[1])
+      const b = Number.parseFloat(values[2])
 
-      const x = Math.floor(dataIndex / (size * size))
+      const z = Math.floor(dataIndex / (size * size))
       const y = Math.floor((dataIndex % (size * size)) / size)
-      const z = dataIndex % size
+      const x = dataIndex % size
 
-      lutData[x][y][z] = [r, g, b]
+      lutData[z][y][x] = [
+        Math.floor(r * 255),
+        Math.floor(g * 255),
+        Math.floor(b * 255),
+      ]
       dataIndex++
     }
   }
@@ -123,16 +137,18 @@ export default function applyLUT(imageData: ImageData, lut: LUT) {
     const g = data[i + 1]
     const b = data[i + 2]
 
-    // Convert RGB to normalized coordinates
+    // Scale input RGB to LUT coordinates
     const x = (r / 255) * (size - 1)
     const y = (g / 255) * (size - 1)
     const z = (b / 255) * (size - 1)
 
     // Get transformed color using trilinear interpolation
     const newColor = trilinearInterpolation(lutData, size, x, y, z)
-    data[i] = newColor[0]
-    data[i + 1] = newColor[1]
-    data[i + 2] = newColor[2]
+
+    // Apply the transformed colors with alpha preservation
+    data[i] = Math.max(0, Math.min(255, newColor[0]))
+    data[i + 1] = Math.max(0, Math.min(255, newColor[1]))
+    data[i + 2] = Math.max(0, Math.min(255, newColor[2]))
   }
 
   return imageData

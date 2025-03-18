@@ -1,4 +1,4 @@
-import { Loader2, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { useCallback, useReducer, useState } from 'react'
 import persisted from '../persisted'
 import { useGenerative } from './use-generative'
@@ -23,18 +23,23 @@ export default function CreativeInput() {
   )
   const [isShowApiKey, toggleShowApiKey] = useReducer((state) => !state, false)
 
-  const { mutateAsync: generate, isPending: isGenerating } = useGenerative()
+  const { mutate: generate, isPending: isGenerating } = useGenerative()
 
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = useCallback(() => {
     if (!image) {
       console.error('Please upload an image first')
       return
     }
 
-    const result = await generate({ prompt, image })
-    setImage(`data:${result.mimeType};base64,${result.image}`)
-
-    setPrompt('')
+    generate(
+      { prompt, image },
+      {
+        onSuccess: (result) => {
+          setImage(`data:${result.mimeType};base64,${result.image}`)
+          setPrompt('')
+        },
+      },
+    )
   }, [generate, prompt, image, setImage])
 
   return (
@@ -45,32 +50,16 @@ export default function CreativeInput() {
         </div>
         <button
           type="button"
-          className="flex items-center gap-1 border rounded px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500 transition-colors duration-100 border-transparent bg-neutral-800 hover:bg-neutral-700 hover:text-neutral-200"
+          className="flex items-center gap-1 border rounded px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500 transition-colors duration-100 border-transparent bg-neutral-800 hover:bg-neutral-700 hover:text-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleGenerate}
           disabled={isGenerating || !prompt || !geminiApiKey}
         >
-          {isGenerating ? (
-            <>
-              <Loader2 className="size-3 text-neutral-500 animate-spin" />
-              <span>Generating...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="size-3 text-neutral-500" />
-              <span>Generate</span>
-            </>
-          )}
+          <Sparkles className="size-3 text-neutral-500" />
+          <span>Generate</span>
         </button>
       </div>
       <div className="relative">
-        {isGenerating && (
-          <div className="absolute inset-0 bg-neutral-900/80">
-            <div className="flex items-center justify-center h-full gap-2 text-xs text-neutral-500">
-              <Loader2 className="size-4 animate-spin" />
-              <span>Generating...</span>
-            </div>
-          </div>
-        )}
+        {isGenerating && <div className="absolute inset-0 bg-neutral-900/80" />}
         <div className="space-y-1">
           <label
             htmlFor="gemini-api-key"

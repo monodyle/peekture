@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '../cn'
 import { useImage } from '../image/state'
+import Loading from './loading'
 import Render from './render'
 import ZoomLevel from './zoom-level'
 
@@ -116,6 +117,7 @@ export default function PreviewContainer() {
             zoomOut={() => handleZoom(-0.1)}
           />
         </div>
+        <Loading />
       </div>
     </div>
   )

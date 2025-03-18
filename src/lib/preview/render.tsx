@@ -1,13 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useImage } from '../image/state'
 import { useLUT } from '../lut/state'
 import applyLUT from '../lut/apply'
-
+import { cn } from '../cn'
 export default function Render() {
   const image = useImage()
   const lut = useLUT()
   const containerRef = useRef<HTMLCanvasElement>(null)
-  // const [isRendering, setIsRendering] = useState(false)
+  const [isRendering, setIsRendering] = useState(false)
 
   useEffect(() => {
     if (!image || !containerRef.current) {
@@ -20,6 +20,7 @@ export default function Render() {
       return
     }
 
+    setIsRendering(true)
     const imageElement = new Image()
     imageElement.src = image
     imageElement.onload = () => {
@@ -43,8 +44,14 @@ export default function Render() {
       const applied = applyLUT(imageData, lut)
 
       ctx.putImageData(applied, 0, 0)
+      setIsRendering(false)
     }
   }, [image, lut])
 
-  return <canvas ref={containerRef} />
+  return (
+    <canvas
+      ref={containerRef}
+      className={cn(isRendering && 'animate-pulse', 'transition-opacity')}
+    />
+  )
 }

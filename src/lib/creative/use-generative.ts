@@ -6,9 +6,11 @@ import {
 } from '@google/generative-ai'
 import persisted from '../persisted'
 
+export const GENERATIVE_MUTATION_KEY = 'generative' as const
+
 export function useGenerative() {
   return useMutation({
-    mutationKey: ['generative'],
+    mutationKey: [GENERATIVE_MUTATION_KEY],
     mutationFn: async ({
       prompt,
       image,
@@ -18,6 +20,7 @@ export function useGenerative() {
       image: string
       history?: Array<Content>
     }) => {
+      await new Promise((resolve) => setTimeout(resolve, 100000))
       const apiKey = persisted.read((state) => state.geminiApiKey)
       if (!apiKey) {
         throw new Error('No Gemini API key found')

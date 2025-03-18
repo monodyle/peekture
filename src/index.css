@@ -2,6 +2,15 @@
 
 @theme {
   --font-sans: "Instrument Sans", sans-serif;
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 50%;
+    }
+    100% {
+      background-position: -200% 50%;
+    }
+  }
 }
 
 @layer utilities {

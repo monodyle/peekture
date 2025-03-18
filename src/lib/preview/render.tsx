@@ -5,7 +5,7 @@ import applyLUT from '../lut/apply'
 
 export default function Render() {
   const image = useImage()
-  // const lut = useLUT()
+  const lut = useLUT()
   const containerRef = useRef<HTMLCanvasElement>(null)
   // const [isRendering, setIsRendering] = useState(false)
 
@@ -39,12 +39,12 @@ export default function Render() {
 
       ctx.drawImage(imageElement, x, y, scaledWidth, scaledHeight)
 
-      // const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      // const applied = applyLUT(imageData, lut)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const applied = applyLUT(imageData, lut)
 
-      // ctx.putImageData(applied, 0, 0)
+      ctx.putImageData(applied, 0, 0)
     }
-  }, [image])
+  }, [image, lut])
 
   return <canvas ref={containerRef} />
 }

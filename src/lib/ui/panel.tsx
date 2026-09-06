@@ -125,7 +125,7 @@ export function SectionAction({
         aria-label={label}
         onClick={onClick}
         disabled={disabled}
-        className="grid size-5 place-items-center rounded-[4px] text-label transition-colors duration-150 hover:bg-surface-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-label"
+        className="grid size-5 place-items-center rounded-[4px] text-label transition-colors duration-150 hover:bg-surface-hover hover:text-white disabled:cursor-not-allowed disabled:text-label/40 disabled:hover:bg-transparent disabled:hover:text-label/40"
       >
         {children}
       </button>

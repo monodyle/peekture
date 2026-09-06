@@ -12,9 +12,23 @@ function isModifierPressed(e: KeyboardEvent | WheelEvent) {
   return e.ctrlKey || e.metaKey
 }
 
-function zoomDeltaForKey(key: string) {
-  if (key === '=' || key === '+') return ZOOM_STEP
-  if (key === '-') return -ZOOM_STEP
+type ZoomAction = 'in' | 'out' | 'fit' | 'actual'
+
+const CTRL_KEY_ACTIONS: Record<string, ZoomAction> = {
+  '=': 'in',
+  '+': 'in',
+  '-': 'out',
+  '0': 'fit',
+}
+
+const SHIFT_CODE_ACTIONS: Record<string, ZoomAction> = {
+  Digit0: 'fit',
+  Digit1: 'actual',
+}
+
+function zoomActionForKey(e: KeyboardEvent): ZoomAction | null {
+  if (isModifierPressed(e)) return CTRL_KEY_ACTIONS[e.key] ?? null
+  if (e.shiftKey) return SHIFT_CODE_ACTIONS[e.code] ?? null
   return null
 }
 
@@ -26,12 +40,18 @@ export default function PreviewContainer() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const box = useBoxSize(containerRef)
-  const displayScale = image ? scale * fitRatio(image.bitmap, box) : scale
+  const ratio = image ? fitRatio(image.bitmap, box) : 1
+  const displayScale = scale * ratio
 
   const resetView = useCallback(() => {
     setScale(1)
     setPosition({ x: 0, y: 0 })
   }, [])
+
+  const actualSize = useCallback(() => {
+    setScale(1 / ratio)
+    setPosition({ x: 0, y: 0 })
+  }, [ratio])
 
   const handleZoom = useCallback((delta: number) => {
     setScale((prevScale) => {
@@ -65,17 +85,18 @@ export default function PreviewContainer() {
   }, [])
 
   useEffect(() => {
+    const actions: Record<ZoomAction, () => void> = {
+      in: () => handleZoom(ZOOM_STEP),
+      out: () => handleZoom(-ZOOM_STEP),
+      fit: resetView,
+      actual: actualSize,
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isModifierPressed(e)) return
-      if (e.key === '0') {
-        e.preventDefault()
-        resetView()
-        return
-      }
-      const delta = zoomDeltaForKey(e.key)
-      if (delta === null) return
+      const action = zoomActionForKey(e)
+      if (!action) return
       e.preventDefault()
-      handleZoom(delta)
+      actions[action]()
     }
 
     const handleWheel = (e: WheelEvent) => {
@@ -92,7 +113,7 @@ export default function PreviewContainer() {
       containerRef.current?.removeEventListener('wheel', handleWheel)
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [handleZoom, resetView])
+  }, [handleZoom, resetView, actualSize])
 
   if (!image) return null
 
@@ -128,6 +149,7 @@ export default function PreviewContainer() {
             zoomIn={() => handleZoom(ZOOM_STEP)}
             zoomOut={() => handleZoom(-ZOOM_STEP)}
             reset={resetView}
+            actualSize={actualSize}
           />
         </div>
         <Loading />

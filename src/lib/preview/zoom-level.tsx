@@ -1,6 +1,6 @@
 import { Toolbar } from '@base-ui/react/toolbar'
 import { Tooltip } from '@base-ui/react/tooltip'
-import { Minus, Plus, RotateCcw } from 'lucide-react'
+import { Maximize2, Minus, Plus, RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 type ZoomLevelProps = {
@@ -8,11 +8,12 @@ type ZoomLevelProps = {
   zoomIn: () => void
   zoomOut: () => void
   reset: () => void
+  actualSize: () => void
 }
 
 type ZoomButtonProps = {
   label: string
-  hint: string
+  hint: string | string[]
   onClick: () => void
   children: ReactNode
 }
@@ -32,9 +33,14 @@ function ZoomButton({ label, hint, onClick, children }: ZoomButtonProps) {
         <Tooltip.Positioner side="top" sideOffset={8}>
           <Tooltip.Popup className="flex items-center gap-2 rounded-[6px] border border-line bg-panel px-2 py-1 text-[12px] text-white shadow-[0_4px_16px_rgba(0,0,0,0.4)] transition-[opacity,transform] duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0">
             <span>{label}</span>
-            <kbd className="rounded-[4px] bg-surface-hover px-1 font-sans text-[11px] text-label">
-              {hint}
-            </kbd>
+            {[hint].flat().map((key) => (
+              <kbd
+                key={key}
+                className="rounded-[4px] bg-surface-hover px-1 font-sans text-[11px] text-label"
+              >
+                {key}
+              </kbd>
+            ))}
           </Tooltip.Popup>
         </Tooltip.Positioner>
       </Tooltip.Portal>
@@ -47,6 +53,7 @@ export default function ZoomLevel({
   zoomIn,
   zoomOut,
   reset,
+  actualSize,
 }: ZoomLevelProps) {
   const currentZoom = Math.round(scale * 100)
 
@@ -65,7 +72,10 @@ export default function ZoomLevel({
         <Plus className="size-3.5" />
       </ZoomButton>
       <Toolbar.Separator className="mx-0.5 h-4 w-px bg-line" />
-      <ZoomButton label="Reset" hint="Ctrl 0" onClick={reset}>
+      <ZoomButton label="Actual size" hint="Shift 1" onClick={actualSize}>
+        <Maximize2 className="size-3.5" />
+      </ZoomButton>
+      <ZoomButton label="Fit" hint={['Ctrl 0', 'Shift 0']} onClick={reset}>
         <RotateCcw className="size-3.5" />
       </ZoomButton>
     </Toolbar.Root>

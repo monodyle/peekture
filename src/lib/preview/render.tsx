@@ -3,8 +3,7 @@ import { cn } from '../cn'
 import { useImage, useImageLoading } from '../image/state'
 import { useIntensity, useLUT } from '../lut/state'
 import { useLUTWorker } from '../lut/use-lut-worker'
-
-type Size = { width: number; height: number }
+import { type Size, useBoxSize } from './use-box-size'
 
 const RESIZE_DELAY_MS = 150
 
@@ -19,23 +18,6 @@ function fitSize(image: ImageBitmap, box: Size, zoom: number): Size {
     width: Math.max(1, Math.round(image.width * scale)),
     height: Math.max(1, Math.round(image.height * scale)),
   }
-}
-
-function useBoxSize(ref: React.RefObject<HTMLElement | null>) {
-  const [box, setBox] = useState<Size | null>(null)
-
-  useEffect(() => {
-    const element = ref.current
-    if (!element) return
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect
-      if (width > 0 && height > 0) setBox({ width, height })
-    })
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [ref])
-
-  return box
 }
 
 function useDebounced<T>(value: T, delay: number) {

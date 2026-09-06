@@ -3,6 +3,7 @@ import { cn } from '../cn'
 import { useImage } from '../image/state'
 import Loading from './loading'
 import Render from './render'
+import { fitRatio, useBoxSize } from './use-box-size'
 import ZoomLevel from './zoom-level'
 
 const ZOOM_STEP = 0.1
@@ -24,6 +25,8 @@ export default function PreviewContainer() {
   const [isDragging, setIsDragging] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const box = useBoxSize(containerRef)
+  const displayScale = image ? scale * fitRatio(image.bitmap, box) : scale
 
   const resetView = useCallback(() => {
     setScale(1)
@@ -121,7 +124,7 @@ export default function PreviewContainer() {
         </div>
         <div className="absolute right-3 bottom-3">
           <ZoomLevel
-            scale={scale}
+            scale={displayScale}
             zoomIn={() => handleZoom(ZOOM_STEP)}
             zoomOut={() => handleZoom(-ZOOM_STEP)}
             reset={resetView}

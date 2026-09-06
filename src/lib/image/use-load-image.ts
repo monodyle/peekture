@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useResetExposure } from '../exposure/state'
 import { useResetEdits } from '../lut/state'
 import { useToast } from '../ui/toast'
 import { useResetWhiteBalance } from '../white-balance/state'
@@ -17,6 +18,7 @@ export function useLoadImage() {
   const { startLoading, finishLoading } = useImageLoading()
   const resetEdits = useResetEdits()
   const resetWhiteBalance = useResetWhiteBalance()
+  const resetExposure = useResetExposure()
   const toast = useToast()
 
   return useCallback(
@@ -27,6 +29,7 @@ export function useLoadImage() {
         setImage(image)
         resetEdits()
         resetWhiteBalance()
+        resetExposure()
         if (image.resized) {
           toast.add({
             title: 'Large image',
@@ -52,6 +55,7 @@ export function useLoadImage() {
       setImage,
       resetEdits,
       resetWhiteBalance,
+      resetExposure,
       startLoading,
       finishLoading,
       toast,

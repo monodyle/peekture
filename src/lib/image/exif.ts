@@ -2,12 +2,19 @@ export type Exif = {
   iso: string | null
   shutter: string | null
   aperture: string | null
+  orientation: number
 }
 
 const TAG_EXIF_IFD = 0x8769
 const TAG_EXPOSURE_TIME = 0x829a
 const TAG_F_NUMBER = 0x829d
 const TAG_ISO = 0x8827
+const TAG_ORIENTATION = 0x0112
+
+// Orientations 5 to 8 rotate by 90 degrees, so width and height swap.
+export function isRotated(exif: Exif | null) {
+  return exif !== null && exif.orientation >= 5
+}
 
 const TYPE_SIZE: Record<number, number> = {
   1: 1,
@@ -100,7 +107,9 @@ function readEntries(reader: Reader, ifdOffset: number): Array<Entry> {
 function applyEntry(reader: Reader, entry: Entry, result: Exif) {
   const { view, little } = reader
   const { tag, type, valueOffset } = entry
-  if (tag === TAG_ISO && type === 3) {
+  if (tag === TAG_ORIENTATION && type === 3) {
+    result.orientation = view.getUint16(valueOffset, little)
+  } else if (tag === TAG_ISO && type === 3) {
     result.iso = `ISO ${view.getUint16(valueOffset, little)}`
   } else if (tag === TAG_EXPOSURE_TIME && type === 5) {
     result.shutter = formatShutter(readRational(view, valueOffset, little))
@@ -117,7 +126,12 @@ function parseTiff(tiff: Uint8Array): Exif | null {
   if (view.getUint16(2, little) !== 0x2a) return null
 
   const reader: Reader = { view, little, length: tiff.length }
-  const result: Exif = { iso: null, shutter: null, aperture: null }
+  const result: Exif = {
+    iso: null,
+    shutter: null,
+    aperture: null,
+    orientation: 1,
+  }
 
   const ifd0 = readEntries(reader, view.getUint32(4, little))
   const exifPointer = ifd0.find((e) => e.tag === TAG_EXIF_IFD)
@@ -127,7 +141,6 @@ function parseTiff(tiff: Uint8Array): Exif | null {
 
   for (const entry of [...ifd0, ...exifIfd]) applyEntry(reader, entry, result)
 
-  if (!result.iso && !result.shutter && !result.aperture) return null
   return result
 }
 

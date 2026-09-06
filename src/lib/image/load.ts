@@ -1,5 +1,5 @@
 import { type Dimensions, readDimensions } from './dimensions'
-import { type Exif, readExif } from './exif'
+import { type Exif, isRotated, readExif } from './exif'
 
 export const MAX_PREVIEW_SIDE = 4096
 export const THUMBNAIL_SIDE = 320
@@ -68,15 +68,17 @@ export async function loadImage(source: Blob): Promise<LoadedImage> {
     source.arrayBuffer(),
   ])
   const exif = readExif(new Uint8Array(bytes))
-  const bitmap = await decode(source, size)
+  const oriented =
+    size && isRotated(exif) ? { width: size.height, height: size.width } : size
+  const bitmap = await decode(source, oriented)
   const thumbnailSize = fitWithin(bitmap, THUMBNAIL_SIDE)
   const thumbnail = await createImageBitmap(bitmap, {
     resizeWidth: thumbnailSize.width,
     resizeHeight: thumbnailSize.height,
     resizeQuality: 'high',
   })
-  const width = size?.width ?? bitmap.width
-  const height = size?.height ?? bitmap.height
+  const width = oriented?.width ?? bitmap.width
+  const height = oriented?.height ?? bitmap.height
   return {
     source,
     width,

@@ -65,6 +65,7 @@ export default function Histogram() {
   const image = useImage()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const exif = image?.exif ?? null
+  const hasCameraInfo = Boolean(exif?.iso || exif?.shutter || exif?.aperture)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -80,7 +81,7 @@ export default function Histogram() {
   return (
     <div className="overflow-hidden rounded-row bg-surface">
       <canvas ref={canvasRef} className="block aspect-[8/3] w-full" />
-      {exif && (
+      {exif && hasCameraInfo && (
         <div className="flex items-center justify-between px-2 py-1 text-muted text-xs tabular-nums">
           <span>{exif.iso}</span>
           <span>{exif.shutter}</span>

@@ -1,4 +1,5 @@
 import CreativeInput from './creative/input'
+import ExposureSection from './exposure/section'
 import Histogram from './histogram'
 import ImageReplace from './image/replace'
 import LUTIntensity from './lut/intensity'
@@ -14,6 +15,7 @@ export default function Sidebar() {
         <Histogram />
       </Section>
       <WhiteBalanceSection />
+      <ExposureSection />
       <Section title="Filters" actions={<LUTUploadAction />}>
         <LUTIntensity />
         <LUTList />

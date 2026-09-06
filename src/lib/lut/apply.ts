@@ -1,143 +1,118 @@
 import type { LUT } from './types'
 
-type RGB = [number, number, number]
-export type LUTData = RGB[][][]
-
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t
+export type ParsedLUT = {
+  size: number
+  table: Float32Array
 }
 
-function lerpRGB(c1: RGB, c2: RGB, t: number): RGB {
-  return [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)]
-}
+const parsedCache = new Map<string, ParsedLUT>()
 
-function trilinearInterpolation(
-  lutData: LUTData,
-  size: number,
-  xIn: number,
-  yIn: number,
-  zIn: number,
-): RGB {
-  // Ensure coordinates are within bounds
-  const x = Math.max(0, Math.min(size - 1, xIn))
-  const y = Math.max(0, Math.min(size - 1, yIn))
-  const z = Math.max(0, Math.min(size - 1, zIn))
+export function parseLUT(lut: LUT): ParsedLUT {
+  const cached = parsedCache.get(lut.id)
+  if (cached) return cached
 
-  const x1 = Math.floor(x)
-  const y1 = Math.floor(y)
-  const z1 = Math.floor(z)
-  const x2 = Math.min(x1 + 1, size - 1)
-  const y2 = Math.min(y1 + 1, size - 1)
-  const z2 = Math.min(z1 + 1, size - 1)
-
-  const xf = x - x1
-  const yf = y - y1
-  const zf = z - z1
-
-  const c000 = lutData[z1][y1][x1]
-  const c001 = lutData[z2][y1][x1]
-  const c010 = lutData[z1][y2][x1]
-  const c011 = lutData[z2][y2][x1]
-  const c100 = lutData[z1][y1][x2]
-  const c101 = lutData[z2][y1][x2]
-  const c110 = lutData[z1][y2][x2]
-  const c111 = lutData[z2][y2][x2]
-
-  const c00 = lerpRGB(c000, c001, zf)
-  const c01 = lerpRGB(c010, c011, zf)
-  const c10 = lerpRGB(c100, c101, zf)
-  const c11 = lerpRGB(c110, c111, zf)
-
-  const c0 = lerpRGB(c00, c01, yf)
-  const c1 = lerpRGB(c10, c11, yf)
-
-  return lerpRGB(c0, c1, xf)
-}
-
-export default function applyLUT(imageData: ImageData, lut: LUT) {
-  const data = imageData.data
-  const lutString = lut.data
-
-  // Parse .cube file
-  const lines = lutString.split('\n')
+  const lines = lut.data.split('\n')
   let size = 0
-  let lutData: LUTData = []
-
-  // Parse header
   for (const line of lines) {
-    const trimmedLine = line.trim()
-    if (trimmedLine.startsWith('#')) continue
-
-    if (trimmedLine.startsWith('LUT_3D_SIZE')) {
-      size = Number.parseInt(trimmedLine.split(' ')[1], 10)
+    const trimmed = line.trim()
+    if (trimmed.startsWith('LUT_3D_SIZE')) {
+      size = Number.parseInt(trimmed.split(/\s+/)[1], 10)
+      break
     }
   }
 
-  // Initialize 3D LUT array
-  lutData = Array(size)
-    .fill(0)
-    .map(() =>
-      Array(size)
-        .fill(0)
-        .map(() =>
-          Array(size)
-            .fill(0)
-            .map(() => [0, 0, 0] as RGB),
-        ),
-    )
-
-  // Parse LUT data
-  let dataIndex = 0
+  const table = new Float32Array(size * size * size * 3)
+  let index = 0
   for (const line of lines) {
-    const trimmedLine = line.trim()
+    const trimmed = line.trim()
     if (
-      trimmedLine.startsWith('#') ||
-      trimmedLine.startsWith('LUT') ||
-      trimmedLine.startsWith('DOMAIN') ||
-      !trimmedLine
+      !trimmed ||
+      trimmed.startsWith('#') ||
+      trimmed.startsWith('LUT') ||
+      trimmed.startsWith('DOMAIN')
     ) {
       continue
     }
-
-    const values = trimmedLine.split(/\s+/)
-    if (values.length === 3 && !Number.isNaN(Number.parseFloat(values[0]))) {
-      // Keep values in normalized form [0,1] for better precision
-      const r = Number.parseFloat(values[0])
-      const g = Number.parseFloat(values[1])
-      const b = Number.parseFloat(values[2])
-
-      const z = Math.floor(dataIndex / (size * size))
-      const y = Math.floor((dataIndex % (size * size)) / size)
-      const x = dataIndex % size
-
-      lutData[z][y][x] = [
-        Math.floor(r * 255),
-        Math.floor(g * 255),
-        Math.floor(b * 255),
-      ]
-      dataIndex++
-    }
+    const values = trimmed.split(/\s+/)
+    if (values.length !== 3) continue
+    const r = Number.parseFloat(values[0])
+    if (Number.isNaN(r)) continue
+    table[index++] = r * 255
+    table[index++] = Number.parseFloat(values[1]) * 255
+    table[index++] = Number.parseFloat(values[2]) * 255
   }
 
-  // Apply 3D LUT transformation with trilinear interpolation
+  const parsed = { size, table }
+  parsedCache.set(lut.id, parsed)
+  return parsed
+}
+
+function clamp255(value: number) {
+  return value < 0 ? 0 : value > 255 ? 255 : value
+}
+
+export function applyParsedLUT(
+  imageData: ImageData,
+  { size, table }: ParsedLUT,
+  intensity = 1,
+) {
+  const amount = Math.max(0, Math.min(1, intensity))
+  if (amount === 0 || size < 2) return imageData
+
+  const data = imageData.data
+  const scale = (size - 1) / 255
+  const strideY = size * 3
+  const strideZ = size * size * 3
+  const keep = 1 - amount
+
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i]
     const g = data[i + 1]
     const b = data[i + 2]
 
-    // Scale input RGB to LUT coordinates
-    const x = (r / 255) * (size - 1)
-    const y = (g / 255) * (size - 1)
-    const z = (b / 255) * (size - 1)
+    const x = r * scale
+    const y = g * scale
+    const z = b * scale
 
-    // Get transformed color using trilinear interpolation
-    const newColor = trilinearInterpolation(lutData, size, x, y, z)
+    const x1 = x | 0
+    const y1 = y | 0
+    const z1 = z | 0
+    const x2 = x1 + 1 < size ? x1 + 1 : x1
+    const y2 = y1 + 1 < size ? y1 + 1 : y1
+    const z2 = z1 + 1 < size ? z1 + 1 : z1
 
-    // Apply the transformed colors with alpha preservation
-    data[i] = Math.max(0, Math.min(255, newColor[0]))
-    data[i + 1] = Math.max(0, Math.min(255, newColor[1]))
-    data[i + 2] = Math.max(0, Math.min(255, newColor[2]))
+    const xf = x - x1
+    const yf = y - y1
+    const zf = z - z1
+
+    const i000 = z1 * strideZ + y1 * strideY + x1 * 3
+    const i001 = z2 * strideZ + y1 * strideY + x1 * 3
+    const i010 = z1 * strideZ + y2 * strideY + x1 * 3
+    const i011 = z2 * strideZ + y2 * strideY + x1 * 3
+    const i100 = z1 * strideZ + y1 * strideY + x2 * 3
+    const i101 = z2 * strideZ + y1 * strideY + x2 * 3
+    const i110 = z1 * strideZ + y2 * strideY + x2 * 3
+    const i111 = z2 * strideZ + y2 * strideY + x2 * 3
+
+    for (let c = 0; c < 3; c++) {
+      const c00 = table[i000 + c] + (table[i001 + c] - table[i000 + c]) * zf
+      const c01 = table[i010 + c] + (table[i011 + c] - table[i010 + c]) * zf
+      const c10 = table[i100 + c] + (table[i101 + c] - table[i100 + c]) * zf
+      const c11 = table[i110 + c] + (table[i111 + c] - table[i110 + c]) * zf
+      const c0 = c00 + (c01 - c00) * yf
+      const c1 = c10 + (c11 - c10) * yf
+      const out = c0 + (c1 - c0) * xf
+      data[i + c] = clamp255(data[i + c] * keep + out * amount)
+    }
   }
 
   return imageData
+}
+
+export default function applyLUT(
+  imageData: ImageData,
+  lut: LUT,
+  intensity = 1,
+) {
+  return applyParsedLUT(imageData, parseLUT(lut), intensity)
 }

@@ -95,7 +95,7 @@ export default function LUTList() {
             <LUTCard
               key={lut.id}
               lut={lut}
-              image={image.bitmap}
+              image={image.thumbnail}
               active={currentLUT.id === lut.id}
               removable={lut.id !== defaultLUT.id}
               onSelect={() => setLUT(lut)}

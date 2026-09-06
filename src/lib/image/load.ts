@@ -2,12 +2,14 @@ import { type Dimensions, readDimensions } from './dimensions'
 import { type Exif, readExif } from './exif'
 
 export const MAX_PREVIEW_SIDE = 4096
+export const THUMBNAIL_SIDE = 320
 
 export type LoadedImage = {
   source: Blob
   width: number
   height: number
   bitmap: ImageBitmap
+  thumbnail: ImageBitmap
   exif: Exif | null
 }
 
@@ -36,15 +38,23 @@ export async function loadImage(source: Blob): Promise<LoadedImage> {
   ])
   const exif = readExif(new Uint8Array(bytes))
   const bitmap = await decode(source, size)
+  const thumbnailSize = fitWithin(bitmap, THUMBNAIL_SIDE)
+  const thumbnail = await createImageBitmap(bitmap, {
+    resizeWidth: thumbnailSize.width,
+    resizeHeight: thumbnailSize.height,
+    resizeQuality: 'high',
+  })
   return {
     source,
     width: size?.width ?? bitmap.width,
     height: size?.height ?? bitmap.height,
     bitmap,
+    thumbnail,
     exif,
   }
 }
 
 export function releaseImage(image: LoadedImage | null) {
   image?.bitmap.close()
+  image?.thumbnail.close()
 }

@@ -74,7 +74,7 @@ export default function Histogram() {
 
     canvas.width = LEVELS
     canvas.height = HEIGHT
-    drawHistogram(ctx, image.bitmap)
+    drawHistogram(ctx, image.thumbnail)
   }, [image])
 
   return (

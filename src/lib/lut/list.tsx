@@ -2,13 +2,11 @@ import { Trash2 } from 'lucide-react'
 import { cn } from '../cn'
 import { useImage } from '../image/state'
 import persisted from '../persisted'
-import { Row } from '../ui/panel'
 import { Tooltip } from '../ui/tooltip'
 import { createDefaultLUT } from './default'
 import LUTPreview from './preview'
 import { useLUT, useSetLUT } from './state'
 import type { LUT } from './types'
-import LUTUpload from './upload'
 import { useLUTs } from './use-luts'
 
 const defaultLUT = createDefaultLUT()
@@ -89,9 +87,6 @@ export default function LUTList() {
 
   return (
     <>
-      <Row label="Cube files">
-        <LUTUpload />
-      </Row>
       {image && (
         <div className="grid grid-cols-2 gap-1.5">
           {[defaultLUT, ...(luts ?? [])].map((lut) => (

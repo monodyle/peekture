@@ -133,21 +133,6 @@ export function SectionAction({
   )
 }
 
-type RowProps = {
-  label: ReactNode
-  children?: ReactNode
-  className?: string
-}
-
-export function Row({ label, children, className }: RowProps) {
-  return (
-    <div className={cn('dialkit-labeled-control', className)}>
-      <span className="dialkit-labeled-control-label">{label}</span>
-      {children}
-    </div>
-  )
-}
-
 type ActionButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export function ActionButton({ className, ...props }: ActionButtonProps) {

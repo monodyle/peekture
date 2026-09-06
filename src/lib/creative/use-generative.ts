@@ -5,7 +5,7 @@ import {
   type Part,
 } from '@google/generative-ai'
 import { useMutation } from '@tanstack/react-query'
-import { blobToBase64 } from '../image/encode'
+import { bitmapToBlob, blobToBase64 } from '../image/encode'
 import type { LoadedImage } from '../image/load'
 import persisted from '../persisted'
 
@@ -33,7 +33,7 @@ async function buildMessageParts(
 ): Promise<Array<Part>> {
   const mimeType =
     image.source.type === 'image/png' ? 'image/png' : 'image/jpeg'
-  const data = await blobToBase64(image.source)
+  const data = await blobToBase64(await bitmapToBlob(image.bitmap, mimeType))
   return [{ text: prompt }, { inlineData: { data, mimeType } }]
 }
 

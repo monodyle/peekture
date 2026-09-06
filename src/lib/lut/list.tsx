@@ -14,7 +14,7 @@ const defaultLUT = createDefaultLUT()
 
 type LUTCardProps = {
   lut: LUT
-  image: string
+  image: ImageBitmap
   active: boolean
   removable: boolean
   onSelect: () => void
@@ -95,7 +95,7 @@ export default function LUTList() {
             <LUTCard
               key={lut.id}
               lut={lut}
-              image={image}
+              image={image.bitmap}
               active={currentLUT.id === lut.id}
               removable={lut.id !== defaultLUT.id}
               onSelect={() => setLUT(lut)}

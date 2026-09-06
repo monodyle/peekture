@@ -8,16 +8,16 @@ type Size = { width: number; height: number }
 
 const RESIZE_DELAY_MS = 150
 
-function fitSize(image: HTMLImageElement, box: Size, zoom: number): Size {
+function fitSize(image: ImageBitmap, box: Size, zoom: number): Size {
   const dpr = window.devicePixelRatio || 1
   const scale = Math.min(
     1,
-    (box.width * dpr * zoom) / image.naturalWidth,
-    (box.height * dpr * zoom) / image.naturalHeight,
+    (box.width * dpr * zoom) / image.width,
+    (box.height * dpr * zoom) / image.height,
   )
   return {
-    width: Math.max(1, Math.round(image.naturalWidth * scale)),
-    height: Math.max(1, Math.round(image.naturalHeight * scale)),
+    width: Math.max(1, Math.round(image.width * scale)),
+    height: Math.max(1, Math.round(image.height * scale)),
   }
 }
 
@@ -69,28 +69,18 @@ export default function Render({ zoom }: RenderProps) {
   useEffect(() => {
     if (!image || !size) return
 
-    let cancelled = false
-    const imageElement = new Image()
-    imageElement.src = image
-    imageElement.onerror = () => {
-      if (!cancelled) finishLoading()
+    const target = fitSize(image.bitmap, size, targetZoom)
+    const offscreen = document.createElement('canvas')
+    offscreen.width = target.width
+    offscreen.height = target.height
+    const ctx = offscreen.getContext('2d')
+    if (!ctx) {
+      finishLoading()
+      return
     }
-    imageElement.onload = () => {
-      if (cancelled) return
-      const target = fitSize(imageElement, size, targetZoom)
-      const offscreen = document.createElement('canvas')
-      offscreen.width = target.width
-      offscreen.height = target.height
-      const ctx = offscreen.getContext('2d')
-      if (!ctx) return
-      ctx.drawImage(imageElement, 0, 0, target.width, target.height)
-      setSource(ctx.getImageData(0, 0, target.width, target.height))
-      setSourceVersion((version) => version + 1)
-    }
-
-    return () => {
-      cancelled = true
-    }
+    ctx.drawImage(image.bitmap, 0, 0, target.width, target.height)
+    setSource(ctx.getImageData(0, 0, target.width, target.height))
+    setSourceVersion((version) => version + 1)
   }, [image, size, targetZoom, setSource, finishLoading])
 
   useEffect(() => {

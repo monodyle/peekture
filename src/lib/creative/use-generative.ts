@@ -5,6 +5,8 @@ import {
   type Part,
 } from '@google/generative-ai'
 import { useMutation } from '@tanstack/react-query'
+import { blobToBase64 } from '../image/encode'
+import type { LoadedImage } from '../image/load'
 import persisted from '../persisted'
 
 export const GENERATIVE_MUTATION_KEY = 'generative' as const
@@ -25,9 +27,13 @@ function createModel(apiKey: string) {
   })
 }
 
-function buildMessageParts(prompt: string, image: string): Array<Part> {
-  const mimeType = image.includes('image/png') ? 'image/png' : 'image/jpeg'
-  const data = image.split(',')[1]
+async function buildMessageParts(
+  prompt: string,
+  image: LoadedImage,
+): Promise<Array<Part>> {
+  const mimeType =
+    image.source.type === 'image/png' ? 'image/png' : 'image/jpeg'
+  const data = await blobToBase64(image.source)
   return [{ text: prompt }, { inlineData: { data, mimeType } }]
 }
 
@@ -53,7 +59,7 @@ export function useGenerative() {
       history,
     }: {
       prompt: string
-      image: string
+      image: LoadedImage
       history?: Array<Content>
     }) => {
       const apiKey = persisted.read((state) => state.geminiApiKey)
@@ -63,7 +69,7 @@ export function useGenerative() {
 
       const chat = createModel(apiKey).startChat({ history })
       const { response } = await chat.sendMessage(
-        buildMessageParts(prompt, image),
+        await buildMessageParts(prompt, image),
       )
       return extractImage(response)
     },

@@ -3,7 +3,7 @@ import type { LUT } from '../lut/types'
 import applyLUT from './apply'
 
 type ImageRenderProps = {
-  image: string
+  image: ImageBitmap
   lut: LUT
 }
 
@@ -17,35 +17,30 @@ export default function LUTPreview({ image, lut }: ImageRenderProps) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const img = new Image()
-    img.src = image
+    const parent = canvas.parentElement
+    if (!parent) return
 
-    img.onload = () => {
-      const parent = canvas.parentElement
-      if (!parent) return
+    const { width, height } = parent.getBoundingClientRect()
+    canvas.width = width
+    canvas.height = height
 
-      const { width, height } = parent.getBoundingClientRect()
-      canvas.width = width
-      canvas.height = height
+    const baseScale = Math.max(
+      canvas.width / image.width,
+      canvas.height / image.height,
+    )
 
-      const baseScale = Math.max(
-        canvas.width / img.width,
-        canvas.height / img.height,
-      )
+    const scaledWidth = image.width * baseScale
+    const scaledHeight = image.height * baseScale
 
-      const scaledWidth = img.width * baseScale
-      const scaledHeight = img.height * baseScale
+    const x = (canvas.width - scaledWidth) / 2
+    const y = (canvas.height - scaledHeight) / 2
 
-      const x = (canvas.width - scaledWidth) / 2
-      const y = (canvas.height - scaledHeight) / 2
+    ctx.drawImage(image, x, y, scaledWidth, scaledHeight)
 
-      ctx.drawImage(img, x, y, scaledWidth, scaledHeight)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const applied = applyLUT(imageData, lut)
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const applied = applyLUT(imageData, lut)
-
-      ctx.putImageData(applied, 0, 0)
-    }
+    ctx.putImageData(applied, 0, 0)
   }, [image, lut])
 
   return <canvas ref={canvasRef} />

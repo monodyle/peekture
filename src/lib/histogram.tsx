@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { readExif } from './image/exif'
+import { useEffect, useRef } from 'react'
 import { useImage } from './image/state'
 
 const LEVELS = 256
@@ -40,13 +39,13 @@ function drawChannel(
   ctx.fill()
 }
 
-function drawHistogram(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
+function drawHistogram(ctx: CanvasRenderingContext2D, img: ImageBitmap) {
   const sample = document.createElement('canvas')
   const sampleCtx = sample.getContext('2d')
   if (!sampleCtx) return
 
-  sample.width = img.naturalWidth
-  sample.height = img.naturalHeight
+  sample.width = img.width
+  sample.height = img.height
   sampleCtx.drawImage(img, 0, 0)
 
   const { data } = sampleCtx.getImageData(0, 0, sample.width, sample.height)
@@ -63,7 +62,7 @@ function drawHistogram(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
 export default function Histogram() {
   const image = useImage()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const exif = useMemo(() => (image ? readExif(image) : null), [image])
+  const exif = image?.exif ?? null
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -73,10 +72,7 @@ export default function Histogram() {
 
     canvas.width = LEVELS
     canvas.height = HEIGHT
-
-    const img = new Image()
-    img.src = image
-    img.onload = () => drawHistogram(ctx, img)
+    drawHistogram(ctx, image.bitmap)
   }, [image])
 
   return (

@@ -2,7 +2,9 @@ import { Toggle } from '@base-ui/react/toggle'
 import { Eye, EyeOff, Sparkles } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { cn } from '../cn'
-import { useImage, useSetImage } from '../image/state'
+import { base64ToBlob } from '../image/encode'
+import { useImage } from '../image/state'
+import { useLoadImage } from '../image/use-load-image'
 import persisted from '../persisted'
 import { ActionButton } from '../ui/panel'
 import { useToast } from '../ui/toast'
@@ -51,7 +53,7 @@ function ApiKeyControl({ value, onChange, disabled }: ApiKeyControlProps) {
 export default function CreativeInput() {
   const [prompt, setPrompt] = useState('')
   const image = useImage()
-  const setImage = useSetImage()
+  const loadImage = useLoadImage()
   const toast = useToast()
 
   const [geminiApiKey, setGeminiApiKey] = useState(() =>
@@ -80,7 +82,7 @@ export default function CreativeInput() {
             })
             return
           }
-          setImage(`data:${result.mimeType};base64,${result.image}`)
+          loadImage(base64ToBlob(result.image, result.mimeType))
           setPrompt('')
         },
         onError: (error) => {
@@ -88,7 +90,7 @@ export default function CreativeInput() {
         },
       },
     )
-  }, [generate, prompt, image, setImage, toast])
+  }, [generate, prompt, image, loadImage, toast])
 
   const canGenerate =
     !isGenerating && prompt.trim() !== '' && geminiApiKey !== ''

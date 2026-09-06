@@ -20,18 +20,6 @@ const TYPE_SIZE: Record<number, number> = {
   10: 8,
 }
 
-function decodeDataUrl(dataUrl: string): Uint8Array | null {
-  const comma = dataUrl.indexOf(',')
-  if (comma < 0) return null
-  const header = dataUrl.slice(0, comma)
-  const body = dataUrl.slice(comma + 1)
-  if (!header.includes(';base64')) return null
-  const binary = atob(body)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
-  return bytes
-}
-
 function findTiffInJpeg(bytes: Uint8Array): Uint8Array | null {
   if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return null
   let offset = 2
@@ -143,9 +131,8 @@ function parseTiff(tiff: Uint8Array): Exif | null {
   return result
 }
 
-export function readExif(dataUrl: string): Exif | null {
-  const bytes = decodeDataUrl(dataUrl)
-  if (!bytes) return null
+export function readExif(bytes: Uint8Array): Exif | null {
+  if (bytes.length < 8) return null
   const tiff = findTiffInJpeg(bytes) ?? findTiffInPng(bytes)
   if (!tiff) return null
   try {

@@ -4,16 +4,20 @@ import localforage from 'localforage'
 import { createExampleLUTs } from './lut/examples'
 import type { LUT } from './lut/types'
 
+export type HistogramMode = 'overlay' | 'separate'
+
 type Store = {
   luts: Array<LUT>
   geminiApiKey: string
   examplesSeeded: boolean
+  histogramMode: HistogramMode
 }
 
 const defaultStore: Store = {
   luts: [],
   geminiApiKey: '',
   examplesSeeded: false,
+  histogramMode: 'overlay',
 }
 
 const DB_NAME = 'peekture'

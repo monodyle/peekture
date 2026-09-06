@@ -1,7 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { Layers, Rows3 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import type { LoadedImage } from './image/load'
 import { useImage } from './image/state'
 import type { Transfer } from './image/transfer'
+import persisted, { type HistogramMode } from './persisted'
+import { Section, SectionAction } from './ui/panel'
 
 const LEVELS = 256
 const BINS = 512
@@ -20,6 +23,19 @@ type Channels = {
   r: Array<number>
   g: Array<number>
   b: Array<number>
+}
+
+type Band = { top: number; bottom: number }
+
+const CHANNEL_COLORS = {
+  r: 'rgba(239, 68, 68, 0.55)',
+  g: 'rgba(34, 197, 94, 0.55)',
+  b: 'rgba(59, 130, 246, 0.55)',
+} as const
+
+const CANVAS_ASPECT: Record<HistogramMode, string> = {
+  overlay: 'aspect-[8/3]',
+  separate: 'aspect-[8/5]',
 }
 
 // SMPTE ST 2084 (PQ) EOTF: normalized code value -> absolute luminance in nits.
@@ -91,16 +107,17 @@ function drawChannel(
   values: Array<number>,
   max: number,
   color: string,
-  { width, height }: Size,
+  width: number,
+  { top, bottom }: Band,
 ) {
-  const plotHeight = height - AXIS_HEIGHT
+  const plotHeight = bottom - top
   const step = width / BINS
   ctx.beginPath()
-  ctx.moveTo(0, height)
+  ctx.moveTo(0, bottom)
   for (let i = 0; i < BINS; i++) {
-    ctx.lineTo(i * step, height - (values[i] / max) * plotHeight)
+    ctx.lineTo(i * step, bottom - (values[i] / max) * plotHeight)
   }
-  ctx.lineTo(width, height)
+  ctx.lineTo(width, bottom)
   ctx.closePath()
   ctx.fillStyle = color
   ctx.fill()
@@ -149,6 +166,7 @@ function drawHistogram(
   ctx: CanvasRenderingContext2D,
   img: ImageBitmap,
   transfer: Transfer,
+  mode: HistogramMode,
   size: Size,
 ) {
   const sample = document.createElement('canvas')
@@ -167,13 +185,38 @@ function drawHistogram(
   ctx.clearRect(0, 0, size.width, size.height)
   ctx.globalCompositeOperation = 'source-over'
   drawAxis(ctx, size)
-  ctx.globalCompositeOperation = 'screen'
-  drawChannel(ctx, r, max, 'rgba(239, 68, 68, 0.55)', size)
-  drawChannel(ctx, g, max, 'rgba(34, 197, 94, 0.55)', size)
-  drawChannel(ctx, b, max, 'rgba(59, 130, 246, 0.55)', size)
+  const channels = { r, g, b }
+  const keys = ['r', 'g', 'b'] as const
+
+  if (mode === 'overlay') {
+    ctx.globalCompositeOperation = 'screen'
+    const band = { top: AXIS_HEIGHT, bottom: size.height }
+    for (const key of keys) {
+      drawChannel(
+        ctx,
+        channels[key],
+        max,
+        CHANNEL_COLORS[key],
+        size.width,
+        band,
+      )
+    }
+    return
+  }
+
+  const bandHeight = (size.height - AXIS_HEIGHT) / keys.length
+  keys.forEach((key, index) => {
+    const top = AXIS_HEIGHT + index * bandHeight
+    const band = { top, bottom: top + bandHeight }
+    drawChannel(ctx, channels[key], max, CHANNEL_COLORS[key], size.width, band)
+  })
 }
 
-function render(canvas: HTMLCanvasElement, image: LoadedImage) {
+function render(
+  canvas: HTMLCanvasElement,
+  image: LoadedImage,
+  mode: HistogramMode,
+) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   const dpr = window.devicePixelRatio || 1
@@ -182,10 +225,12 @@ function render(canvas: HTMLCanvasElement, image: LoadedImage) {
   canvas.width = Math.round(size.width * dpr)
   canvas.height = Math.round(size.height * dpr)
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  drawHistogram(ctx, image.thumbnail, image.transfer, size)
+  drawHistogram(ctx, image.thumbnail, image.transfer, mode, size)
 }
 
-export default function Histogram() {
+type HistogramProps = { mode: HistogramMode }
+
+function Histogram({ mode }: HistogramProps) {
   const image = useImage()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const exif = image?.exif ?? null
@@ -194,14 +239,17 @@ export default function Histogram() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!image || !canvas) return
-    const observer = new ResizeObserver(() => render(canvas, image))
+    const observer = new ResizeObserver(() => render(canvas, image, mode))
     observer.observe(canvas)
     return () => observer.disconnect()
-  }, [image])
+  }, [image, mode])
 
   return (
     <div className="overflow-hidden rounded-row bg-surface">
-      <canvas ref={canvasRef} className="block aspect-[8/3] w-full" />
+      <canvas
+        ref={canvasRef}
+        className={`block w-full ${CANVAS_ASPECT[mode]}`}
+      />
       {exif && hasCameraInfo && (
         <div className="flex items-center justify-between px-2 py-1 text-muted text-xs tabular-nums">
           <span>{exif.iso}</span>
@@ -210,5 +258,39 @@ export default function Histogram() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function HistogramSection() {
+  const [mode, setMode] = useState<HistogramMode>(() =>
+    persisted.read((store) => store.histogramMode),
+  )
+
+  const toggleMode = () => {
+    const next: HistogramMode = mode === 'overlay' ? 'separate' : 'overlay'
+    setMode(next)
+    persisted.write((draft) => {
+      draft.histogramMode = next
+    })
+  }
+
+  return (
+    <Section
+      title="Histogram"
+      actions={
+        <SectionAction
+          label={mode === 'overlay' ? 'Separate channels' : 'Overlay channels'}
+          onClick={toggleMode}
+        >
+          {mode === 'overlay' ? (
+            <Rows3 className="size-3.5" />
+          ) : (
+            <Layers className="size-3.5" />
+          )}
+        </SectionAction>
+      }
+    >
+      <Histogram mode={mode} />
+    </Section>
   )
 }

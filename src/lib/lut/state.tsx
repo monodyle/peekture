@@ -83,6 +83,15 @@ export function useIntensity() {
   return intensity
 }
 
+export function useResetEdits() {
+  const { setLUT } = useContext(LUTState)
+  const { setIntensity } = useContext(IntensityState)
+  return useCallback(() => {
+    setLUT(defaultLUT)
+    setIntensity(100)
+  }, [setLUT, setIntensity])
+}
+
 export function useSetIntensity() {
   const { setIntensity } = useContext(IntensityState)
   return setIntensity

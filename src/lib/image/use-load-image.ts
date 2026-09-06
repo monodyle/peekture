@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useResetEdits } from '../lut/state'
 import { useToast } from '../ui/toast'
 import {
   ImageTooLargeError,
@@ -13,6 +14,7 @@ const MAX_MEGAPIXELS = Math.round(MAX_PIXELS / 1_000_000)
 export function useLoadImage() {
   const setImage = useSetImage()
   const { startLoading, finishLoading } = useImageLoading()
+  const resetEdits = useResetEdits()
   const toast = useToast()
 
   return useCallback(
@@ -21,6 +23,7 @@ export function useLoadImage() {
       try {
         const image = await loadImage(source)
         setImage(image)
+        resetEdits()
         if (image.resized) {
           toast.add({
             title: 'Large image',
@@ -42,6 +45,6 @@ export function useLoadImage() {
         })
       }
     },
-    [setImage, startLoading, finishLoading, toast],
+    [setImage, resetEdits, startLoading, finishLoading, toast],
   )
 }

@@ -116,7 +116,7 @@ export default function PreviewContainer() {
               transition: isDragging ? 'none' : 'transform 100ms ease-out',
             }}
           >
-            <Render />
+            <Render zoom={scale} />
           </div>
         </div>
         <div className="absolute right-3 bottom-3">

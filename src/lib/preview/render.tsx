@@ -1,60 +1,125 @@
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '../cn'
 import { useImage } from '../image/state'
-import applyLUT from '../lut/apply'
-import { useLUT } from '../lut/state'
-export default function Render() {
-  const image = useImage()
-  const lut = useLUT()
-  const containerRef = useRef<HTMLCanvasElement>(null)
-  const [isRendering, setIsRendering] = useState(false)
+import { useIntensity, useLUT } from '../lut/state'
+import { useLUTWorker } from '../lut/use-lut-worker'
+
+type Size = { width: number; height: number }
+
+const RESIZE_DELAY_MS = 150
+
+function fitSize(image: HTMLImageElement, box: Size, zoom: number): Size {
+  const dpr = window.devicePixelRatio || 1
+  const scale = Math.min(
+    1,
+    (box.width * dpr * zoom) / image.naturalWidth,
+    (box.height * dpr * zoom) / image.naturalHeight,
+  )
+  return {
+    width: Math.max(1, Math.round(image.naturalWidth * scale)),
+    height: Math.max(1, Math.round(image.naturalHeight * scale)),
+  }
+}
+
+function useBoxSize(ref: React.RefObject<HTMLElement | null>) {
+  const [box, setBox] = useState<Size | null>(null)
 
   useEffect(() => {
-    if (!image || !containerRef.current) {
-      return
-    }
+    const element = ref.current
+    if (!element) return
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      if (width > 0 && height > 0) setBox({ width, height })
+    })
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [ref])
 
-    const canvas = containerRef.current
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      return
-    }
+  return box
+}
 
-    setIsRendering(true)
+function useDebounced<T>(value: T, delay: number) {
+  const [debounced, setDebounced] = useState(value)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(value), delay)
+    return () => window.clearTimeout(timer)
+  }, [value, delay])
+
+  return debounced
+}
+
+type RenderProps = {
+  zoom: number
+}
+
+export default function Render({ zoom }: RenderProps) {
+  const image = useImage()
+  const lut = useLUT()
+  const intensity = useIntensity()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const boxRef = useRef<HTMLDivElement>(null)
+  const size = useDebounced(useBoxSize(boxRef), RESIZE_DELAY_MS)
+  const targetZoom = useDebounced(zoom, RESIZE_DELAY_MS)
+  const [sourceVersion, setSourceVersion] = useState(0)
+  const [isRendering, setIsRendering] = useState(false)
+  const { setSource, apply } = useLUTWorker()
+
+  useEffect(() => {
+    if (!image || !size) return
+
+    let cancelled = false
     const imageElement = new Image()
     imageElement.src = image
     imageElement.onload = () => {
-      canvas.width = imageElement.width
-      canvas.height = imageElement.height
-
-      const baseScale = Math.max(
-        canvas.width / imageElement.width,
-        canvas.height / imageElement.height,
-      )
-
-      const scaledWidth = imageElement.width * baseScale
-      const scaledHeight = imageElement.height * baseScale
-
-      const x = (canvas.width - scaledWidth) / 2
-      const y = (canvas.height - scaledHeight) / 2
-
-      ctx.drawImage(imageElement, x, y, scaledWidth, scaledHeight)
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const applied = applyLUT(imageData, lut)
-
-      ctx.putImageData(applied, 0, 0)
-      setIsRendering(false)
+      if (cancelled) return
+      const target = fitSize(imageElement, size, targetZoom)
+      const offscreen = document.createElement('canvas')
+      offscreen.width = target.width
+      offscreen.height = target.height
+      const ctx = offscreen.getContext('2d')
+      if (!ctx) return
+      ctx.drawImage(imageElement, 0, 0, target.width, target.height)
+      setSource(ctx.getImageData(0, 0, target.width, target.height))
+      setSourceVersion((version) => version + 1)
     }
-  }, [image, lut])
+
+    return () => {
+      cancelled = true
+    }
+  }, [image, size, targetZoom, setSource])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || sourceVersion === 0) return
+
+    setIsRendering(true)
+    apply({
+      lut,
+      intensity: intensity / 100,
+      onDone: (result) => {
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+        if (canvas.width !== result.width) canvas.width = result.width
+        if (canvas.height !== result.height) canvas.height = result.height
+        ctx.putImageData(result, 0, 0)
+        setIsRendering(false)
+      },
+    })
+  }, [sourceVersion, lut, intensity, apply])
 
   return (
-    <canvas
-      ref={containerRef}
-      className={cn(
-        'max-h-full max-w-full object-contain transition-opacity',
-        isRendering && 'animate-pulse',
-      )}
-    />
+    <div
+      ref={boxRef}
+      className="flex h-full w-full items-center justify-center"
+    >
+      <canvas
+        ref={canvasRef}
+        className={cn(
+          'max-h-full max-w-full object-contain transition-opacity',
+          isRendering && 'animate-pulse',
+        )}
+      />
+    </div>
   )
 }

@@ -1,10 +1,12 @@
-import { SelectControl, Slider } from 'dialkit'
+import { SelectControl } from 'dialkit'
 import { RotateCcw, Wand2 } from 'lucide-react'
 import { useImage } from '../image/state'
 import { Section, SectionAction } from '../ui/panel'
+import { Slider } from '../ui/slider'
 import { useToast } from '../ui/toast'
 import { estimateWhiteBalance } from './auto'
 import {
+  DEFAULT_WHITE_BALANCE,
   isIdentity,
   isPresetMode,
   PRESET_MODES,
@@ -89,6 +91,7 @@ export default function WhiteBalanceSection() {
       <Slider
         label="Temperature"
         value={whiteBalance.temperature}
+        defaultValue={DEFAULT_WHITE_BALANCE.temperature}
         onChange={(temperature) => adjust({ temperature })}
         min={-RANGE}
         max={RANGE}
@@ -97,6 +100,7 @@ export default function WhiteBalanceSection() {
       <Slider
         label="Tint"
         value={whiteBalance.tint}
+        defaultValue={DEFAULT_WHITE_BALANCE.tint}
         onChange={(tint) => adjust({ tint })}
         min={-RANGE}
         max={RANGE}

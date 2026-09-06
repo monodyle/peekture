@@ -1,4 +1,4 @@
-import { Slider } from 'dialkit'
+import { Slider } from '../ui/slider'
 import { useIntensity, useSetIntensity } from './state'
 
 export default function LUTIntensity() {
@@ -9,6 +9,7 @@ export default function LUTIntensity() {
     <Slider
       label="Intensity"
       value={intensity}
+      defaultValue={100}
       onChange={setIntensity}
       min={0}
       max={100}

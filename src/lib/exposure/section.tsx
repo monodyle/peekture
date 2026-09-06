@@ -1,10 +1,10 @@
-import { Slider } from 'dialkit'
 import { RotateCcw, Wand2 } from 'lucide-react'
 import { useImage } from '../image/state'
 import { Section, SectionAction } from '../ui/panel'
+import { Slider } from '../ui/slider'
 import { useToast } from '../ui/toast'
 import { estimateExposure } from './auto'
-import { isIdentity, RANGE } from './defaults'
+import { DEFAULT_EXPOSURE, isIdentity, RANGE } from './defaults'
 import {
   useAdjustExposure,
   useExposure,
@@ -67,6 +67,7 @@ export default function ExposureSection() {
           key={key}
           label={label}
           value={exposure[key]}
+          defaultValue={DEFAULT_EXPOSURE[key]}
           onChange={(value) => adjust({ [key]: value })}
           min={-RANGE}
           max={RANGE}

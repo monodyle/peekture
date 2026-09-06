@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react'
-import type { LUT } from './types'
 import { createDefaultLUT } from './default'
+import type { LUT } from './types'
 
 type LUTState = {
   lut: LUT

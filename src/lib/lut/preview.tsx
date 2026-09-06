@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { LUT } from '../lut/types'
 import applyLUT from './apply'
 

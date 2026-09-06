@@ -1,7 +1,7 @@
 import type { Draft } from 'immer'
 import { produce } from 'immer'
-import type { LUT } from './lut/types'
 import localforage from 'localforage'
+import type { LUT } from './lut/types'
 
 type Store = {
   luts: Array<LUT>

@@ -1,7 +1,7 @@
+import { useIsMutating } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { cn } from '../cn'
 import { GENERATIVE_MUTATION_KEY } from '../creative/use-generative'
-import { useIsMutating } from '@tanstack/react-query'
 
 export default function Loading() {
   const isMutating = useIsMutating({ mutationKey: [GENERATIVE_MUTATION_KEY] })

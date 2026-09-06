@@ -1,10 +1,10 @@
 import { CloudUpload, Loader2 } from 'lucide-react'
+import { nanoid } from 'nanoid'
 import { useCallback, useState } from 'react'
 import { cn } from '../cn'
 import persisted from '../persisted'
-import { useLUTs } from './use-luts'
 import type { LUT } from './types'
-import { nanoid } from 'nanoid'
+import { useLUTs } from './use-luts'
 
 export default function LUTUpload() {
   const [isDragging, setIsDragging] = useState(false)

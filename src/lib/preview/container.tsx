@@ -88,6 +88,7 @@ export default function PreviewContainer() {
   return (
     <div className="grid max-h-full overflow-hidden rounded bg-neutral-900 place-items-center">
       <div className="relative flex w-full h-full overflow-hidden rounded-lg select-none">
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: mouse-only pan surface, keyboard reset is handled on window */}
         <div
           ref={containerRef}
           className={cn(

@@ -1,7 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useEffect } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ImageStateProvider from './lib/image/state'
 import LUTStateProvider from './lib/lut/state'
 import persisted from './lib/persisted'

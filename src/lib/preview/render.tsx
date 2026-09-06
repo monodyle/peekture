@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useImage } from '../image/state'
-import { useLUT } from '../lut/state'
-import applyLUT from '../lut/apply'
 import { cn } from '../cn'
+import { useImage } from '../image/state'
+import applyLUT from '../lut/apply'
+import { useLUT } from '../lut/state'
 export default function Render() {
   const image = useImage()
   const lut = useLUT()

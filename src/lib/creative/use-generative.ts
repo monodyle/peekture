@@ -1,9 +1,9 @@
-import { useMutation } from '@tanstack/react-query'
 import {
   type Content,
   GoogleGenerativeAI,
   type Part,
 } from '@google/generative-ai'
+import { useMutation } from '@tanstack/react-query'
 import persisted from '../persisted'
 
 export const GENERATIVE_MUTATION_KEY = 'generative' as const

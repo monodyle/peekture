@@ -1,4 +1,4 @@
-import { Plus, Minus } from 'lucide-react'
+import { Minus, Plus } from 'lucide-react'
 
 type ZoomLevelProps = {
   scale: number
@@ -18,7 +18,11 @@ export default function ZoomLevel({ scale, zoomIn, zoomOut }: ZoomLevelProps) {
         <Minus className="size-4" />
       </button>
       <span className="text-sm text-neutral-400">{currentZoom}%</span>
-      <button type="button" className="p-1 hover:bg-neutral-800 rounded" onClick={zoomIn}>
+      <button
+        type="button"
+        className="p-1 hover:bg-neutral-800 rounded"
+        onClick={zoomIn}
+      >
         <Plus className="size-4" />
       </button>
     </div>

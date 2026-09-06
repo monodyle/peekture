@@ -1,8 +1,8 @@
 import { Sparkles } from 'lucide-react'
 import { useCallback, useReducer, useState } from 'react'
+import { useImage, useSetImage } from '../image/state'
 import persisted from '../persisted'
 import { useGenerative } from './use-generative'
-import { useImage, useSetImage } from '../image/state'
 
 export default function CreativeInput() {
   const [prompt, setPrompt] = useState('')

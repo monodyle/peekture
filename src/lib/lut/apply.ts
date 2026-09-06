@@ -62,8 +62,6 @@ export default function applyLUT(imageData: ImageData, lut: LUT) {
   const lines = lutString.split('\n')
   let size = 0
   let lutData: LUTData = []
-  let domainMin = [0, 0, 0]
-  let domainMax = [1, 1, 1]
 
   // Parse header
   for (const line of lines) {
@@ -72,16 +70,6 @@ export default function applyLUT(imageData: ImageData, lut: LUT) {
 
     if (trimmedLine.startsWith('LUT_3D_SIZE')) {
       size = Number.parseInt(trimmedLine.split(' ')[1], 10)
-    } else if (trimmedLine.startsWith('DOMAIN_MIN')) {
-      domainMin = trimmedLine
-        .split(' ')
-        .slice(1)
-        .map((v) => Number.parseFloat(v)) as [number, number, number]
-    } else if (trimmedLine.startsWith('DOMAIN_MAX')) {
-      domainMax = trimmedLine
-        .split(' ')
-        .slice(1)
-        .map((v) => Number.parseFloat(v)) as [number, number, number]
     }
   }
 

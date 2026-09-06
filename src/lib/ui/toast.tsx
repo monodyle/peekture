@@ -1,6 +1,7 @@
 import { Toast } from '@base-ui/react/toast'
 import { X } from 'lucide-react'
 import { cn } from '../cn'
+import { Tooltip } from './tooltip'
 
 export function useToast() {
   return Toast.useToastManager()
@@ -37,12 +38,14 @@ function ToastList() {
           <Toast.Title className="text-[13px] font-semibold text-white" />
           <Toast.Description className="text-[12px] text-label" />
         </div>
-        <Toast.Close
-          aria-label="Dismiss"
-          className="grid size-6 shrink-0 place-items-center rounded-[6px] text-muted hover:bg-surface-hover hover:text-white"
-        >
-          <X className="size-3.5" />
-        </Toast.Close>
+        <Tooltip label="Dismiss">
+          <Toast.Close
+            aria-label="Dismiss"
+            className="grid size-6 shrink-0 place-items-center rounded-[6px] text-muted hover:bg-surface-hover hover:text-white"
+          >
+            <X className="size-3.5" />
+          </Toast.Close>
+        </Tooltip>
       </Toast.Content>
     </Toast.Root>
   ))

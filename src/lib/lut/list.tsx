@@ -3,6 +3,7 @@ import { cn } from '../cn'
 import { useImage } from '../image/state'
 import persisted from '../persisted'
 import { Row } from '../ui/panel'
+import { Tooltip } from '../ui/tooltip'
 import { createDefaultLUT } from './default'
 import LUTPreview from './preview'
 import { useLUT, useSetLUT } from './state'
@@ -57,14 +58,16 @@ function LUTCard({
         </div>
       </button>
       {removable && (
-        <button
-          type="button"
-          aria-label={`Remove ${lut.name}`}
-          className="absolute top-2.5 right-2.5 grid size-6 place-items-center rounded-[6px] bg-black/60 text-white/80 opacity-0 transition-opacity duration-150 hover:bg-black/80 hover:text-white group-hover:opacity-100"
-          onClick={onRemove}
-        >
-          <Trash2 className="size-3.5" />
-        </button>
+        <Tooltip label="Remove">
+          <button
+            type="button"
+            aria-label={`Remove ${lut.name}`}
+            className="absolute top-2.5 right-2.5 grid size-6 place-items-center rounded-[6px] bg-black/60 text-white/80 opacity-0 transition-opacity duration-150 hover:bg-black/80 hover:text-white group-hover:opacity-100"
+            onClick={onRemove}
+          >
+            <Trash2 className="size-3.5" />
+          </button>
+        </Tooltip>
       )}
     </div>
   )

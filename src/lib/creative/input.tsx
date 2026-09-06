@@ -8,6 +8,7 @@ import { useLoadImage } from '../image/use-load-image'
 import persisted from '../persisted'
 import { ActionButton } from '../ui/panel'
 import { useToast } from '../ui/toast'
+import { Tooltip } from '../ui/tooltip'
 import { useGenerative } from './use-generative'
 
 type ApiKeyControlProps = {
@@ -34,18 +35,20 @@ function ApiKeyControl({ value, onChange, disabled }: ApiKeyControlProps) {
         disabled={disabled}
         onChange={(e) => onChange(e.target.value)}
       />
-      <Toggle
-        aria-label={visible ? 'Hide API key' : 'Show API key'}
-        pressed={visible}
-        onPressedChange={setVisible}
-        className="-mr-1.5 grid size-6 shrink-0 place-items-center rounded-[6px] text-muted hover:bg-surface-hover hover:text-white"
-      >
-        {visible ? (
-          <EyeOff className="size-3.5" />
-        ) : (
-          <Eye className="size-3.5" />
-        )}
-      </Toggle>
+      <Tooltip label={visible ? 'Hide API key' : 'Show API key'}>
+        <Toggle
+          aria-label={visible ? 'Hide API key' : 'Show API key'}
+          pressed={visible}
+          onPressedChange={setVisible}
+          className="-mr-1.5 grid size-6 shrink-0 place-items-center rounded-[6px] text-muted hover:bg-surface-hover hover:text-white"
+        >
+          {visible ? (
+            <EyeOff className="size-3.5" />
+          ) : (
+            <Eye className="size-3.5" />
+          )}
+        </Toggle>
+      </Tooltip>
     </div>
   )
 }

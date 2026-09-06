@@ -1,7 +1,7 @@
 import { Toolbar } from '@base-ui/react/toolbar'
-import { Tooltip } from '@base-ui/react/tooltip'
 import { Maximize2, Minus, Plus, RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { Tooltip } from '../ui/tooltip'
 
 type ZoomLevelProps = {
   scale: number
@@ -20,31 +20,15 @@ type ZoomButtonProps = {
 
 function ZoomButton({ label, hint, onClick, children }: ZoomButtonProps) {
   return (
-    <Tooltip.Root>
-      <Tooltip.Trigger
-        render={<Toolbar.Button />}
+    <Tooltip label={label} hint={hint}>
+      <Toolbar.Button
         aria-label={label}
         onClick={onClick}
         className="grid size-7 place-items-center rounded-[6px] text-label transition-colors duration-150 hover:bg-surface-hover hover:text-white"
       >
         {children}
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Positioner side="top" sideOffset={8}>
-          <Tooltip.Popup className="flex items-center gap-2 rounded-[6px] border border-line bg-panel px-2 py-1 text-[12px] text-white shadow-[0_4px_16px_rgba(0,0,0,0.4)] transition-[opacity,transform] duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0">
-            <span>{label}</span>
-            {[hint].flat().map((key) => (
-              <kbd
-                key={key}
-                className="rounded-[4px] bg-surface-hover px-1 font-sans text-[11px] text-label"
-              >
-                {key}
-              </kbd>
-            ))}
-          </Tooltip.Popup>
-        </Tooltip.Positioner>
-      </Tooltip.Portal>
-    </Tooltip.Root>
+      </Toolbar.Button>
+    </Tooltip>
   )
 }
 

@@ -4,6 +4,7 @@ import ImageReplace from './image/replace'
 import LUTIntensity from './lut/intensity'
 import LUTList from './lut/list'
 import { Panel, Section } from './ui/panel'
+import WhiteBalanceSection from './white-balance/section'
 
 export default function Sidebar() {
   return (
@@ -11,6 +12,7 @@ export default function Sidebar() {
       <Section title="Histogram">
         <Histogram />
       </Section>
+      <WhiteBalanceSection />
       <Section title="Filters">
         <LUTIntensity />
         <LUTList />

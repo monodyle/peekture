@@ -10,6 +10,7 @@ import queryClient from './lib/query-client'
 import { type RestoredSession, restoreSession } from './lib/restore-session'
 import Screen from './lib/screen'
 import { Toaster } from './lib/ui/toast'
+import WhiteBalanceStateProvider from './lib/white-balance/state'
 
 export default function App() {
   const [restored, setRestored] = useState<RestoredSession | null>(null)
@@ -29,7 +30,11 @@ export default function App() {
               initialLUT={restored.lut}
               initialIntensity={restored.intensity}
             >
-              <Screen />
+              <WhiteBalanceStateProvider
+                initialWhiteBalance={restored.whiteBalance}
+              >
+                <Screen />
+              </WhiteBalanceStateProvider>
             </LUTStateProvider>
           </ImageStateProvider>
         </Tooltip.Provider>

@@ -1,9 +1,11 @@
 import localforage from 'localforage'
+import type { WhiteBalance } from './white-balance/types'
 
 type Session = {
   image: Blob
   lutId: string
   intensity: number
+  whiteBalance: WhiteBalance
 }
 
 // Kept apart from the main store so the image blob is not rewritten

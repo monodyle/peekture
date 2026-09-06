@@ -3,6 +3,7 @@ import { Tooltip } from '@base-ui/react/tooltip'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useEffect, useState } from 'react'
+import ExposureStateProvider from './lib/exposure/state'
 import ImageStateProvider from './lib/image/state'
 import LUTStateProvider from './lib/lut/state'
 import persisted from './lib/persisted'
@@ -33,7 +34,9 @@ export default function App() {
               <WhiteBalanceStateProvider
                 initialWhiteBalance={restored.whiteBalance}
               >
-                <Screen />
+                <ExposureStateProvider initialExposure={restored.exposure}>
+                  <Screen />
+                </ExposureStateProvider>
               </WhiteBalanceStateProvider>
             </LUTStateProvider>
           </ImageStateProvider>

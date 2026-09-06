@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
+import { readExif } from './image/exif'
 import { useImage } from './image/state'
 
 const LEVELS = 256
@@ -62,6 +63,7 @@ function drawHistogram(ctx: CanvasRenderingContext2D, img: HTMLImageElement) {
 export default function Histogram() {
   const image = useImage()
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const exif = useMemo(() => (image ? readExif(image) : null), [image])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -80,6 +82,13 @@ export default function Histogram() {
   return (
     <div className="overflow-hidden rounded-row bg-surface">
       <canvas ref={canvasRef} className="block aspect-[8/3] w-full" />
+      {exif && (
+        <div className="flex items-center justify-between px-2 py-1 text-muted text-xs tabular-nums">
+          <span>{exif.iso}</span>
+          <span>{exif.shutter}</span>
+          <span>{exif.aperture}</span>
+        </div>
+      )}
     </div>
   )
 }

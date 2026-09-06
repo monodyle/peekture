@@ -16,6 +16,7 @@ export function Slider({ defaultValue, onChange, ...props }: SliderProps) {
   }
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: double-click reset is a mouse-only shortcut, the slider itself stays accessible
     <div onDoubleClick={reset}>
       <DialkitSlider key={resetCount} onChange={onChange} {...props} />
     </div>

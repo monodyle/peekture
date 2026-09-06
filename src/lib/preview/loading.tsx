@@ -2,11 +2,13 @@ import { useIsMutating } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { cn } from '../cn'
 import { GENERATIVE_MUTATION_KEY } from '../creative/use-generative'
+import { useIsImageLoading } from '../image/state'
 
 export default function Loading() {
   const isMutating = useIsMutating({ mutationKey: [GENERATIVE_MUTATION_KEY] })
+  const isImageLoading = useIsImageLoading()
 
-  if (!isMutating) {
+  if (!isMutating && !isImageLoading) {
     return null
   }
 
@@ -22,7 +24,7 @@ export default function Loading() {
             'text-[13px] font-semibold',
           )}
         >
-          Generating...
+          {isMutating ? 'Generating...' : 'Loading image...'}
         </div>
       </div>
     </div>

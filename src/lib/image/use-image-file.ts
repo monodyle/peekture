@@ -1,11 +1,12 @@
 import { useCallback } from 'react'
 import { useToast } from '../ui/toast'
-import { useSetImage } from './state'
+import { useImageLoading, useSetImage } from './state'
 
 export const IMAGE_ACCEPT = 'image/jpg,image/jpeg,image/png'
 
 export function useImageFile() {
   const setImage = useSetImage()
+  const { startLoading, finishLoading } = useImageLoading()
   const toast = useToast()
 
   return useCallback(
@@ -19,12 +20,21 @@ export function useImageFile() {
         return
       }
 
+      startLoading()
       const reader = new FileReader()
       reader.onloadend = () => {
-        if (typeof reader.result === 'string') setImage(reader.result)
+        if (typeof reader.result === 'string') {
+          setImage(reader.result)
+          return
+        }
+        finishLoading()
+        toast.add({
+          title: 'Could not read file',
+          description: 'Try a different image.',
+        })
       }
       reader.readAsDataURL(file)
     },
-    [setImage, toast],
+    [setImage, startLoading, finishLoading, toast],
   )
 }

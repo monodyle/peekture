@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '../cn'
-import { useImage } from '../image/state'
+import { useImage, useImageLoading } from '../image/state'
 import { useIntensity, useLUT } from '../lut/state'
 import { useLUTWorker } from '../lut/use-lut-worker'
 
@@ -55,6 +55,7 @@ type RenderProps = {
 
 export default function Render({ zoom }: RenderProps) {
   const image = useImage()
+  const { finishLoading } = useImageLoading()
   const lut = useLUT()
   const intensity = useIntensity()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -71,6 +72,9 @@ export default function Render({ zoom }: RenderProps) {
     let cancelled = false
     const imageElement = new Image()
     imageElement.src = image
+    imageElement.onerror = () => {
+      if (!cancelled) finishLoading()
+    }
     imageElement.onload = () => {
       if (cancelled) return
       const target = fitSize(imageElement, size, targetZoom)
@@ -87,7 +91,7 @@ export default function Render({ zoom }: RenderProps) {
     return () => {
       cancelled = true
     }
-  }, [image, size, targetZoom, setSource])
+  }, [image, size, targetZoom, setSource, finishLoading])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -104,9 +108,10 @@ export default function Render({ zoom }: RenderProps) {
         if (canvas.height !== result.height) canvas.height = result.height
         ctx.putImageData(result, 0, 0)
         setIsRendering(false)
+        finishLoading()
       },
     })
-  }, [sourceVersion, lut, intensity, apply])
+  }, [sourceVersion, lut, intensity, apply, finishLoading])
 
   return (
     <div

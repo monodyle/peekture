@@ -1,11 +1,13 @@
-import { ImagePlus } from 'lucide-react'
+import { ImagePlus, Loader2 } from 'lucide-react'
 import type { ChangeEvent, DragEvent } from 'react'
 import { useState } from 'react'
 import { cn } from '../cn'
+import { useIsImageLoading } from './state'
 import { IMAGE_ACCEPT, useImageFile } from './use-image-file'
 
 export default function ImageUpload() {
   const handleFile = useImageFile()
+  const isLoading = useIsImageLoading()
   const [isDragging, setIsDragging] = useState(false)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -24,6 +26,17 @@ export default function ImageUpload() {
     e.stopPropagation()
     setIsDragging(false)
     handleFile(e.dataTransfer.files?.[0])
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-4 rounded-panel border border-dashed border-line bg-panel">
+        <div className="grid size-12 place-items-center rounded-full bg-surface-hover text-label">
+          <Loader2 className="size-5 animate-spin" />
+        </div>
+        <p className="text-[15px] font-semibold text-white">Loading image...</p>
+      </div>
+    )
   }
 
   return (

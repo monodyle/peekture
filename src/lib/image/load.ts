@@ -3,6 +3,14 @@ import { type Exif, readExif } from './exif'
 
 export const MAX_PREVIEW_SIDE = 4096
 export const THUMBNAIL_SIDE = 320
+export const MAX_PIXELS = 100_000_000
+
+export class ImageTooLargeError extends Error {
+  constructor(size: Dimensions) {
+    super(`Image is ${size.width} x ${size.height}, above the pixel limit`)
+    this.name = 'ImageTooLargeError'
+  }
+}
 
 export type LoadedImage = {
   source: Blob
@@ -11,6 +19,7 @@ export type LoadedImage = {
   bitmap: ImageBitmap
   thumbnail: ImageBitmap
   exif: Exif | null
+  resized: boolean
 }
 
 function fitWithin(size: Dimensions, maxSide: number): Dimensions {
@@ -21,14 +30,36 @@ function fitWithin(size: Dimensions, maxSide: number): Dimensions {
   }
 }
 
-async function decode(source: Blob, size: Dimensions | null) {
-  if (!size) return createImageBitmap(source)
-  const target = fitWithin(size, MAX_PREVIEW_SIDE)
+function assertWithinBudget(size: Dimensions) {
+  if (size.width * size.height > MAX_PIXELS) throw new ImageTooLargeError(size)
+}
+
+function resize(source: ImageBitmapSource, target: Dimensions) {
   return createImageBitmap(source, {
     resizeWidth: target.width,
     resizeHeight: target.height,
     resizeQuality: 'high',
   })
+}
+
+// Without header dimensions the browser must decode at full size first,
+// so the budget check runs after decode and the full bitmap is released.
+async function decode(source: Blob, size: Dimensions | null) {
+  if (size) {
+    assertWithinBudget(size)
+    return resize(source, fitWithin(size, MAX_PREVIEW_SIDE))
+  }
+  const full = await createImageBitmap(source)
+  const target = fitWithin(full, MAX_PREVIEW_SIDE)
+  if (target.width === full.width && target.height === full.height) {
+    return full
+  }
+  try {
+    assertWithinBudget(full)
+    return await resize(full, target)
+  } finally {
+    full.close()
+  }
 }
 
 export async function loadImage(source: Blob): Promise<LoadedImage> {
@@ -44,13 +75,16 @@ export async function loadImage(source: Blob): Promise<LoadedImage> {
     resizeHeight: thumbnailSize.height,
     resizeQuality: 'high',
   })
+  const width = size?.width ?? bitmap.width
+  const height = size?.height ?? bitmap.height
   return {
     source,
-    width: size?.width ?? bitmap.width,
-    height: size?.height ?? bitmap.height,
+    width,
+    height,
     bitmap,
     thumbnail,
     exif,
+    resized: bitmap.width < width || bitmap.height < height,
   }
 }
 

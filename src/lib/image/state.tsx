@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import session from '../session'
 import { type LoadedImage, releaseImage } from './load'
 
 type ImageState = {
@@ -23,16 +24,22 @@ const ImageState = createContext<ImageState>({
   finishLoading: () => {},
 })
 
+type ImageStateProviderProps = React.PropsWithChildren<{
+  initialImage: LoadedImage | null
+}>
+
 export default function ImageStateProvider({
+  initialImage,
   children,
-}: React.PropsWithChildren) {
-  const [image, setImageState] = useState<LoadedImage | null>(null)
+}: ImageStateProviderProps) {
+  const [image, setImageState] = useState<LoadedImage | null>(initialImage)
   const [isLoading, setIsLoading] = useState(false)
 
   // A new image is not ready until the preview has rendered it,
   // so setting the image also marks it as loading.
   const setImage = useCallback((next: LoadedImage) => {
     setIsLoading(true)
+    session.write('image', next.source)
     setImageState((previous) => {
       releaseImage(previous)
       return next

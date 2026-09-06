@@ -7,24 +7,28 @@ import ImageStateProvider from './lib/image/state'
 import LUTStateProvider from './lib/lut/state'
 import persisted from './lib/persisted'
 import queryClient from './lib/query-client'
+import { type RestoredSession, restoreSession } from './lib/restore-session'
 import Screen from './lib/screen'
 import { Toaster } from './lib/ui/toast'
 
 export default function App() {
-  const [isReady, setIsReady] = useState(false)
+  const [restored, setRestored] = useState<RestoredSession | null>(null)
 
   useEffect(() => {
-    persisted.init().then(() => setIsReady(true))
+    persisted.init().then(restoreSession).then(setRestored)
   }, [])
 
-  if (!isReady) return null
+  if (!restored) return null
 
   return (
     <QueryClientProvider client={queryClient}>
       <Toast.Provider>
         <Tooltip.Provider delay={300}>
-          <ImageStateProvider>
-            <LUTStateProvider>
+          <ImageStateProvider initialImage={restored.image}>
+            <LUTStateProvider
+              initialLUT={restored.lut}
+              initialIntensity={restored.intensity}
+            >
               <Screen />
             </LUTStateProvider>
           </ImageStateProvider>

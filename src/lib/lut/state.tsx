@@ -1,4 +1,11 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react'
+import session from '../session'
 import { createDefaultLUT } from './default'
 import type { LUT } from './types'
 
@@ -24,16 +31,32 @@ const IntensityState = createContext<IntensityState>({
   setIntensity: () => {},
 })
 
-export default function LUTStateProvider({
-  children,
-}: React.PropsWithChildren) {
-  const [lut, setLUT] = useState<LUT>(defaultLUT)
-  const [intensity, setIntensity] = useState(100)
+type LUTStateProviderProps = React.PropsWithChildren<{
+  initialLUT: LUT | null
+  initialIntensity: number | null
+}>
 
-  const lutValue = useMemo(() => ({ lut, setLUT }), [lut])
+export default function LUTStateProvider({
+  initialLUT,
+  initialIntensity,
+  children,
+}: LUTStateProviderProps) {
+  const [lut, setLUTState] = useState<LUT>(initialLUT ?? defaultLUT)
+  const [intensity, setIntensityState] = useState(initialIntensity ?? 100)
+
+  const setLUT = useCallback((next: LUT) => {
+    setLUTState(next)
+    session.write('lutId', next.id)
+  }, [])
+  const setIntensity = useCallback((next: number) => {
+    setIntensityState(next)
+    session.write('intensity', next)
+  }, [])
+
+  const lutValue = useMemo(() => ({ lut, setLUT }), [lut, setLUT])
   const intensityValue = useMemo(
     () => ({ intensity, setIntensity }),
-    [intensity],
+    [intensity, setIntensity],
   )
 
   return (

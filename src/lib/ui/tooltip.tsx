@@ -5,15 +5,30 @@ type TooltipProps = {
   label: ReactNode
   hint?: string | string[]
   side?: 'top' | 'bottom' | 'left' | 'right'
+  // Keep the tooltip open when the trigger is clicked, so a label that
+  // changes on click stays visible.
+  keepOpenOnPress?: boolean
   // The element that shows the tooltip. It receives the trigger props.
   children: ReactElement
 }
 
-export function Tooltip({ label, hint, side = 'top', children }: TooltipProps) {
+export function Tooltip({
+  label,
+  hint,
+  side = 'top',
+  keepOpenOnPress = false,
+  children,
+}: TooltipProps) {
   const keys = hint ? [hint].flat() : []
 
   return (
-    <BaseTooltip.Root>
+    <BaseTooltip.Root
+      onOpenChange={(open, details) => {
+        if (!open && keepOpenOnPress && details.reason === 'trigger-press') {
+          details.cancel()
+        }
+      }}
+    >
       <BaseTooltip.Trigger render={children} />
       <BaseTooltip.Portal>
         <BaseTooltip.Positioner side={side} sideOffset={6}>

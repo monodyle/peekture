@@ -119,7 +119,7 @@ export function SectionAction({
   children,
 }: SectionActionProps) {
   return (
-    <Tooltip label={label}>
+    <Tooltip label={label} keepOpenOnPress>
       <button
         type="button"
         aria-label={label}

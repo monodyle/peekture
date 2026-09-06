@@ -1,16 +1,19 @@
 import type { Draft } from 'immer'
 import { produce } from 'immer'
 import localforage from 'localforage'
+import { createExampleLUTs } from './lut/examples'
 import type { LUT } from './lut/types'
 
 type Store = {
   luts: Array<LUT>
   geminiApiKey: string
+  examplesSeeded: boolean
 }
 
 const defaultStore: Store = {
   luts: [],
   geminiApiKey: '',
+  examplesSeeded: false,
 }
 
 const DB_NAME = 'peekture'
@@ -31,7 +34,13 @@ const persisted = {
     if (!stored) {
       await storage.setItem(STORE_NAME, defaultStore)
     }
-    _state = stored || defaultStore
+    _state = { ...defaultStore, ...stored }
+    if (!_state.examplesSeeded) {
+      await this.write((draft) => {
+        draft.luts.push(...createExampleLUTs())
+        draft.examplesSeeded = true
+      })
+    }
   },
   read<Selected>(selector: (persisted: Store) => Selected): Selected {
     return selector(_state)

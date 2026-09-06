@@ -3,6 +3,7 @@ import { useImage } from './image/state'
 
 const LEVELS = 256
 const HEIGHT = 96
+const SAMPLE_SIDE = 256
 
 type Channels = {
   r: Array<number>
@@ -44,9 +45,10 @@ function drawHistogram(ctx: CanvasRenderingContext2D, img: ImageBitmap) {
   const sampleCtx = sample.getContext('2d')
   if (!sampleCtx) return
 
-  sample.width = img.width
-  sample.height = img.height
-  sampleCtx.drawImage(img, 0, 0)
+  const scale = Math.min(1, SAMPLE_SIDE / Math.max(img.width, img.height))
+  sample.width = Math.max(1, Math.round(img.width * scale))
+  sample.height = Math.max(1, Math.round(img.height * scale))
+  sampleCtx.drawImage(img, 0, 0, sample.width, sample.height)
 
   const { data } = sampleCtx.getImageData(0, 0, sample.width, sample.height)
   const { r, g, b } = countChannels(data)

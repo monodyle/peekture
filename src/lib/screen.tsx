@@ -8,14 +8,14 @@ export default function Screen() {
 
   if (!image) {
     return (
-      <div className="grid h-screen p-4 gap-4">
+      <div className="grid h-screen p-4">
         <ImageUpload />
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-[auto_300px] h-screen p-4 gap-4">
+    <div className="grid h-screen grid-cols-[minmax(0,1fr)_300px] gap-4 p-4">
       <PreviewContainer />
       <Sidebar />
     </div>

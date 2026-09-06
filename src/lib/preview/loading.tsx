@@ -11,15 +11,15 @@ export default function Loading() {
   }
 
   return (
-    <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center">
-      <div className="px-2 py-1 bg-neutral-900 rounded-lg flex items-center gap-2">
-        <Loader2 className="size-4 animate-spin" />
+    <div className="absolute inset-0 flex items-center justify-center bg-app/70 backdrop-blur-sm">
+      <div className="flex items-center gap-2.5 rounded-[10px] border border-line bg-panel px-3.5 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <Loader2 className="size-4 animate-spin text-label" />
         <div
           className={cn(
-            'bg-[linear-gradient(to_right,var(--color-neutral-500)_40%,var(--color-neutral-200)_60%,var(--color-neutral-500)_80%)]',
-            'bg-[200%_auto] bg-clip-text font-medium text-transparent',
-            'animate-[shimmer_4s_infinite_linear]',
-            'text-sm font-semibold',
+            'bg-[linear-gradient(to_right,var(--color-muted)_40%,white_60%,var(--color-muted)_80%)]',
+            'bg-[200%_auto] bg-clip-text text-transparent',
+            'animate-[shimmer_3s_infinite_linear]',
+            'text-[13px] font-semibold',
           )}
         >
           Generating...

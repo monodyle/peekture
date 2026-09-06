@@ -94,13 +94,13 @@ export default function PreviewContainer() {
   if (!image) return null
 
   return (
-    <div className="grid max-h-full overflow-hidden rounded bg-neutral-900 place-items-center">
-      <div className="relative flex w-full h-full overflow-hidden rounded-lg select-none">
+    <div className="grid max-h-full place-items-center overflow-hidden">
+      <div className="relative flex h-full w-full select-none overflow-hidden">
         {/* biome-ignore lint/a11y/noStaticElementInteractions: mouse-only pan surface, keyboard reset is handled on window */}
         <div
           ref={containerRef}
           className={cn(
-            'relative w-full h-full flex items-center justify-center',
+            'relative flex h-full w-full cursor-grab items-center justify-center',
             isDragging && 'cursor-grabbing',
           )}
           onMouseDown={handleMouseDown}
@@ -110,7 +110,7 @@ export default function PreviewContainer() {
           onDoubleClick={resetView}
         >
           <div
-            className="max-w-full max-h-full select-none"
+            className="flex h-full w-full select-none items-center justify-center"
             style={{
               transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               transition: isDragging ? 'none' : 'transform 100ms ease-out',
@@ -119,11 +119,12 @@ export default function PreviewContainer() {
             <Render />
           </div>
         </div>
-        <div className="absolute bottom-2 right-2">
+        <div className="absolute right-3 bottom-3">
           <ZoomLevel
             scale={scale}
             zoomIn={() => handleZoom(ZOOM_STEP)}
             zoomOut={() => handleZoom(-ZOOM_STEP)}
+            reset={resetView}
           />
         </div>
         <Loading />

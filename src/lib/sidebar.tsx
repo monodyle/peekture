@@ -1,15 +1,21 @@
 import CreativeInput from './creative/input'
 import Histogram from './histogram'
+import ImageReplace from './image/replace'
 import LUTList from './lut/list'
+import { Panel, Section } from './ui/panel'
 
 export default function Sidebar() {
   return (
-    <div className="p-4 rounded bg-neutral-900 h-full overflow-hidden flex flex-col">
-      <div className="space-y-4 flex-1 flex flex-col overflow-hidden h-full">
+    <Panel toolbar={<ImageReplace />}>
+      <Section title="Histogram">
         <Histogram />
-        <CreativeInput />
+      </Section>
+      <Section title="Filters">
         <LUTList />
-      </div>
-    </div>
+      </Section>
+      <Section title="Creative" defaultOpen={false}>
+        <CreativeInput />
+      </Section>
+    </Panel>
   )
 }

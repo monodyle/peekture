@@ -1,7 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Instrument Sans", sans-serif;
+  --font-sans: "Instrument Sans", system-ui, sans-serif;
+
+  --color-app: #161616;
+  --color-panel: #212121;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-hover: rgba(255, 255, 255, 0.1);
+  --color-surface-active: rgba(255, 255, 255, 0.11);
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-line-subtle: rgba(255, 255, 255, 0.06);
+  --color-label: rgba(255, 255, 255, 0.7);
+  --color-muted: rgba(255, 255, 255, 0.4);
+
+  --radius-row: 8px;
+  --radius-panel: 14px;
 
   @keyframes shimmer {
     0% {
@@ -13,15 +26,14 @@
   }
 }
 
-@layer utilities {
-  .min-h-screen {
-    min-height: 100dvh;
-  }
-}
-
-@layer components {
+@layer base {
   body {
-    @apply min-h-screen overflow-hidden bg-neutral-950 text-neutral-50 font-sans;
+    min-height: 100dvh;
+    overflow: hidden;
+    background: var(--color-app);
+    color: white;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
 
   ::-webkit-scrollbar {
@@ -30,15 +42,48 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-neutral-900;
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
     border-radius: 2px;
-    @apply bg-neutral-800;
+    background: var(--color-surface-hover);
+  }
+}
+
+@layer components {
+  .peekture-panel.dialkit-root {
+    font-family: inherit;
+    height: 100%;
+    max-height: 100%;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-neutral-700;
+  .peekture-panel .dialkit-panel-inner {
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+
+  .peekture-panel .dialkit-button:disabled {
+    cursor: not-allowed;
+    color: var(--dial-text-tertiary);
+    background: var(--dial-surface);
+  }
+
+  .peekture-panel .dialkit-panel-toolbar {
+    height: auto;
+    overflow: visible;
+    margin-bottom: 0;
+  }
+
+  .peekture-panel .dialkit-folder-root > .dialkit-folder-inner {
+    padding-bottom: 12px;
+  }
+
+  .peekture-panel
+    .dialkit-folder-root
+    > .dialkit-folder-inner
+    > .dialkit-folder:first-child {
+    border-top: none;
   }
 }

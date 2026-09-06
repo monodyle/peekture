@@ -1,79 +1,56 @@
-import { CloudUpload, Loader2 } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { nanoid } from 'nanoid'
 import { useCallback, useState } from 'react'
 import { cn } from '../cn'
 import persisted from '../persisted'
+import { useToast } from '../ui/toast'
 import type { LUT } from './types'
 import { useLUTs } from './use-luts'
 
+async function readLUTs(files: FileList) {
+  const luts: Array<LUT> = []
+  for (const file of Array.from(files)) {
+    luts.push({
+      id: nanoid(),
+      name: file.name.replace(/\.[^/.]+$/, ''),
+      data: await file.text(),
+    })
+  }
+  return luts
+}
+
 export default function LUTUpload() {
-  const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const { refetch: refetchLUTs } = useLUTs()
-
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }, [])
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }, [])
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }, [])
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }, [])
+  const toast = useToast()
 
   const handleChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files
-      if (!files) return
+      if (!files || files.length === 0) return
       setIsUploading(true)
-      const luts: Array<LUT> = []
-      for (const file of Array.from(files)) {
-        const data = await file.text()
-        luts.push({
-          id: nanoid(),
-          name: file.name.replace(/\.[^/.]+$/, ''),
-          data,
-        })
-      }
-
-      persisted.write((draft) => {
+      const luts = await readLUTs(files)
+      await persisted.write((draft) => {
         draft.luts.push(...luts)
       })
-
       await refetchLUTs()
       setIsUploading(false)
+      e.target.value = ''
+      toast.add({
+        title:
+          luts.length === 1 ? 'Filter added' : `${luts.length} filters added`,
+      })
     },
-    [refetchLUTs],
+    [refetchLUTs, toast],
   )
 
   return (
     <label
       className={cn(
-        'flex items-center gap-1 border rounded',
-        'px-1 py-0.5 text-xs font-semibold tracking-tight text-neutral-500',
-        'transition-colors duration-100',
-        isDragging
-          ? 'border-blue-500 bg-blue-500/10'
-          : 'border-transparent bg-neutral-800 hover:bg-neutral-700 hover:text-neutral-200',
+        'flex h-7 cursor-pointer items-center gap-1.5 rounded-[6px] px-2.5 text-[12px] font-medium text-label',
+        'bg-surface-hover transition-colors duration-150 hover:bg-surface-active hover:text-white',
+        isUploading && 'pointer-events-none text-muted',
       )}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
     >
       <input
         type="file"
@@ -84,16 +61,11 @@ export default function LUTUpload() {
         onChange={handleChange}
       />
       {isUploading ? (
-        <>
-          <Loader2 className="size-3 animate-spin" />
-          <span>Uploading...</span>
-        </>
+        <Loader2 className="size-3.5 animate-spin" />
       ) : (
-        <>
-          <CloudUpload className="size-3" />
-          <span>Upload</span>
-        </>
+        <Plus className="size-3.5" />
       )}
+      <span>Add .cube</span>
     </label>
   )
 }

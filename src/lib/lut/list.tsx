@@ -1,57 +1,109 @@
+import { Trash2 } from 'lucide-react'
 import { cn } from '../cn'
 import { useImage } from '../image/state'
+import persisted from '../persisted'
+import { Row } from '../ui/panel'
 import { createDefaultLUT } from './default'
 import LUTPreview from './preview'
 import { useLUT, useSetLUT } from './state'
+import type { LUT } from './types'
 import LUTUpload from './upload'
 import { useLUTs } from './use-luts'
 
 const defaultLUT = createDefaultLUT()
 
+type LUTCardProps = {
+  lut: LUT
+  image: string
+  active: boolean
+  removable: boolean
+  onSelect: () => void
+  onRemove: () => void
+}
+
+function LUTCard({
+  lut,
+  image,
+  active,
+  removable,
+  onSelect,
+  onRemove,
+}: LUTCardProps) {
+  return (
+    <div
+      className={cn(
+        'group relative rounded-row bg-surface p-1.5 transition-colors duration-150',
+        active
+          ? 'bg-surface-active ring-1 ring-white/70 ring-inset'
+          : 'hover:bg-surface-hover',
+      )}
+    >
+      <button
+        type="button"
+        className="block w-full cursor-pointer text-left"
+        title={lut.name}
+        onClick={onSelect}
+      >
+        <div className="aspect-[5/4] w-full overflow-hidden rounded-[5px] bg-black/30">
+          <LUTPreview image={image} lut={lut} />
+        </div>
+        <div
+          className={cn(
+            'truncate px-1 pt-1.5 pb-0.5 text-[12px] font-medium',
+            active ? 'text-white' : 'text-label',
+          )}
+        >
+          {lut.name}
+        </div>
+      </button>
+      {removable && (
+        <button
+          type="button"
+          aria-label={`Remove ${lut.name}`}
+          className="absolute top-2.5 right-2.5 grid size-6 place-items-center rounded-[6px] bg-black/60 text-white/80 opacity-0 transition-opacity duration-150 hover:bg-black/80 hover:text-white group-hover:opacity-100"
+          onClick={onRemove}
+        >
+          <Trash2 className="size-3.5" />
+        </button>
+      )}
+    </div>
+  )
+}
+
 export default function LUTList() {
   const image = useImage()
-  const { data: luts, isFetching } = useLUTs()
+  const { data: luts, refetch } = useLUTs()
   const setLUT = useSetLUT()
   const currentLUT = useLUT()
 
-  if (isFetching) {
-    return (
-      <div className="text-sm text-center text-neutral-500">Loading...</div>
-    )
+  const removeLUT = async (lut: LUT) => {
+    await persisted.write((draft) => {
+      draft.luts = draft.luts.filter((item) => item.id !== lut.id)
+    })
+    if (currentLUT.id === lut.id) setLUT(defaultLUT)
+    await refetch()
   }
 
   return (
-    <div className="gap-2 flex flex-col flex-1 overflow-hidden">
-      <div className="flex flex-shrink-0 items-center justify-between sticky top-0 bg-neutral-900 z-10 py-1">
-        <div className="text-xs font-semibold tracking-tight uppercase text-neutral-500">
-          Filters
-        </div>
+    <>
+      <Row label="Cube files">
         <LUTUpload />
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-2 gap-2 p-2 flex-1">
+      </Row>
+      {image && (
+        <div className="grid grid-cols-2 gap-1.5">
           {[defaultLUT, ...(luts ?? [])].map((lut) => (
-            <button
+            <LUTCard
               key={lut.id}
-              type="button"
-              className={cn(
-                'w-full text-left space-y-0.5 cursor-pointer rounded',
-                currentLUT.id === lut.id &&
-                  'bg-neutral-800 outline-2 outline-blue-500',
-              )}
-              title={lut.name}
-              onClick={() => setLUT(lut)}
-            >
-              <div className="p-1">
-                <div className="aspect-[5/4] w-full overflow-hidden rounded">
-                  {image && <LUTPreview image={image} lut={lut} />}
-                </div>
-              </div>
-              <div className="text-xs truncate px-2 pb-1">{lut.name}</div>
-            </button>
+              lut={lut}
+              image={image}
+              active={currentLUT.id === lut.id}
+              removable={lut.id !== defaultLUT.id}
+              onSelect={() => setLUT(lut)}
+              onRemove={() => removeLUT(lut)}
+            />
           ))}
         </div>
-      </div>
-    </div>
+      )}
+    </>
   )
 }

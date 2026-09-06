@@ -51,7 +51,10 @@ export default function Render() {
   return (
     <canvas
       ref={containerRef}
-      className={cn(isRendering && 'animate-pulse', 'transition-opacity')}
+      className={cn(
+        'max-h-full max-w-full object-contain transition-opacity',
+        isRendering && 'animate-pulse',
+      )}
     />
   )
 }

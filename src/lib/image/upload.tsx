@@ -1,85 +1,59 @@
-import { HardDriveUpload } from 'lucide-react'
+import { ImagePlus } from 'lucide-react'
 import type { ChangeEvent, DragEvent } from 'react'
 import { useState } from 'react'
 import { cn } from '../cn'
-import { useSetImage } from './state'
+import { IMAGE_ACCEPT, useImageFile } from './use-image-file'
 
 export default function ImageUpload() {
-  const setImage = useSetImage()
+  const handleFile = useImageFile()
   const [isDragging, setIsDragging] = useState(false)
 
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleFile(e.target.files?.[0])
+  }
+
+  const handleDrag =
+    (dragging: boolean) => (e: DragEvent<HTMLLabelElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDragging(dragging)
     }
-
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImage(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    handleFile(file)
-  }
-
-  const handleDragEnter = (e: DragEvent<HTMLLabelElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e: DragEvent<HTMLLabelElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }
-
-  const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
 
   const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
-
-    const file = e.dataTransfer.files?.[0]
-    if (!file) return
-    handleFile(file)
+    handleFile(e.dataTransfer.files?.[0])
   }
 
   return (
-    <div className="w-full h-full p-4">
-      <label
-        className={cn(
-          'flex flex-col items-center justify-center gap-4 p-24 transition-colors duration-100 border-1 w-full h-full border-dashed rounded cursor-pointer text-neutral-400',
-          isDragging
-            ? 'border-blue-500 bg-blue-500/10'
-            : 'border-neutral-700 hover:border-neutral-600',
-        )}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        <div className="flex items-center gap-2">
-          <HardDriveUpload className="size-4" />
-          Upload your image here to start
-        </div>
-        <input
-          type="file"
-          accept="image/jpg,image/jpeg,image/png"
-          className="hidden"
-          onChange={handleImageChange}
-        />
-      </label>
-    </div>
+    <label
+      className={cn(
+        'flex h-full w-full cursor-pointer flex-col items-center justify-center gap-4 rounded-panel border border-dashed transition-colors duration-150',
+        isDragging
+          ? 'border-white/40 bg-surface-hover'
+          : 'border-line bg-panel hover:border-white/20 hover:bg-surface',
+      )}
+      onDragEnter={handleDrag(true)}
+      onDragOver={handleDrag(true)}
+      onDragLeave={handleDrag(false)}
+      onDrop={handleDrop}
+    >
+      <div className="grid size-12 place-items-center rounded-full bg-surface-hover text-label">
+        <ImagePlus className="size-5" />
+      </div>
+      <div className="text-center">
+        <p className="text-[15px] font-semibold text-white">Drop an image</p>
+        <p className="mt-1 text-[13px] text-muted">
+          or click to browse. JPG and PNG.
+        </p>
+      </div>
+      <input
+        type="file"
+        accept={IMAGE_ACCEPT}
+        className="hidden"
+        onChange={handleChange}
+      />
+    </label>
   )
 }

@@ -5,6 +5,18 @@ import Loading from './loading'
 import Render from './render'
 import ZoomLevel from './zoom-level'
 
+const ZOOM_STEP = 0.1
+
+function isModifierPressed(e: KeyboardEvent | WheelEvent) {
+  return e.ctrlKey || e.metaKey
+}
+
+function zoomDeltaForKey(key: string) {
+  if (key === '=' || key === '+') return ZOOM_STEP
+  if (key === '-') return -ZOOM_STEP
+  return null
+}
+
 export default function PreviewContainer() {
   const image = useImage()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -51,26 +63,22 @@ export default function PreviewContainer() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === '=' || e.key === '+') {
-          e.preventDefault()
-          handleZoom(0.1)
-        } else if (e.key === '-') {
-          e.preventDefault()
-          handleZoom(-0.1)
-        } else if (e.key === '0') {
-          e.preventDefault()
-          resetView()
-        }
+      if (!isModifierPressed(e)) return
+      if (e.key === '0') {
+        e.preventDefault()
+        resetView()
+        return
       }
+      const delta = zoomDeltaForKey(e.key)
+      if (delta === null) return
+      e.preventDefault()
+      handleZoom(delta)
     }
 
     const handleWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault()
-        const delta = e.deltaY > 0 ? -0.1 : 0.1
-        handleZoom(delta)
-      }
+      if (!isModifierPressed(e)) return
+      e.preventDefault()
+      handleZoom(e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP)
     }
 
     containerRef.current?.addEventListener('wheel', handleWheel, {
@@ -114,8 +122,8 @@ export default function PreviewContainer() {
         <div className="absolute bottom-2 right-2">
           <ZoomLevel
             scale={scale}
-            zoomIn={() => handleZoom(0.1)}
-            zoomOut={() => handleZoom(-0.1)}
+            zoomIn={() => handleZoom(ZOOM_STEP)}
+            zoomOut={() => handleZoom(-ZOOM_STEP)}
           />
         </div>
         <Loading />

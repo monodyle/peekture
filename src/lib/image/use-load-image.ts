@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useResetEdits } from '../lut/state'
 import { useToast } from '../ui/toast'
+import { useResetWhiteBalance } from '../white-balance/state'
 import {
   ImageTooLargeError,
   loadImage,
@@ -15,6 +16,7 @@ export function useLoadImage() {
   const setImage = useSetImage()
   const { startLoading, finishLoading } = useImageLoading()
   const resetEdits = useResetEdits()
+  const resetWhiteBalance = useResetWhiteBalance()
   const toast = useToast()
 
   return useCallback(
@@ -24,6 +26,7 @@ export function useLoadImage() {
         const image = await loadImage(source)
         setImage(image)
         resetEdits()
+        resetWhiteBalance()
         if (image.resized) {
           toast.add({
             title: 'Large image',
@@ -45,6 +48,13 @@ export function useLoadImage() {
         })
       }
     },
-    [setImage, resetEdits, startLoading, finishLoading, toast],
+    [
+      setImage,
+      resetEdits,
+      resetWhiteBalance,
+      startLoading,
+      finishLoading,
+      toast,
+    ],
   )
 }

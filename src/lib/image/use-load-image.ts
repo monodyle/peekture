@@ -12,6 +12,10 @@ import { useImageLoading, useSetImage } from './state'
 
 const MAX_MEGAPIXELS = Math.round(MAX_PIXELS / 1_000_000)
 
+type LoadOptions = {
+  keepEdits?: boolean
+}
+
 export function useLoadImage() {
   const setImage = useSetImage()
   const { startLoading, finishLoading } = useImageLoading()
@@ -20,19 +24,22 @@ export function useLoadImage() {
   const toast = useToast()
 
   return useCallback(
-    async (source: Blob) => {
+    async (source: Blob, { keepEdits = false }: LoadOptions = {}) => {
       startLoading()
       try {
         const image = await loadImage(source)
         setImage(image)
-        resetEdits()
-        resetAdjustments()
+        if (!keepEdits) {
+          resetEdits()
+          resetAdjustments()
+        }
         if (image.resized) {
           toast.add({
             title: 'Large image',
             description: `Preview was resized to ${MAX_PREVIEW_SIDE} px on the long side.`,
           })
         }
+        return true
       } catch (error) {
         finishLoading()
         if (error instanceof ImageTooLargeError) {
@@ -40,12 +47,13 @@ export function useLoadImage() {
             title: 'Image too large',
             description: `Select an image under ${MAX_MEGAPIXELS} megapixels.`,
           })
-          return
+          return false
         }
         toast.add({
           title: 'Could not read file',
           description: 'Try a different image.',
         })
+        return false
       }
     },
     [

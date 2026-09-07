@@ -1,8 +1,11 @@
 import { Sparkles, X } from 'lucide-react'
 import { AnimatePresence, motion, useDragControls } from 'motion/react'
 import { useRef, useState } from 'react'
+import { useRevisions } from '../image/revision-state'
+import { Section } from '../ui/panel'
 import { Tooltip } from '../ui/tooltip'
 import CreativeInput from './input'
+import CreativeRevisions from './revisions'
 
 const PANEL_TRANSITION = {
   type: 'spring',
@@ -14,6 +17,7 @@ export default function CreativeFloating() {
   const [expanded, setExpanded] = useState(false)
   const boundsRef = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
+  const { revisions } = useRevisions()
 
   return (
     <div ref={boundsRef} className="pointer-events-none fixed inset-0 z-50">
@@ -59,8 +63,17 @@ export default function CreativeFloating() {
                   </button>
                 </Tooltip>
               </div>
-              <div className="dialkit-folder-inner px-3 pt-3 pb-3">
-                <CreativeInput />
+              <div className="px-3 pt-3 pb-3">
+                <div className="dialkit-folder-inner">
+                  <CreativeInput />
+                </div>
+                {revisions.length > 0 && (
+                  <div className="mt-3 border-line-subtle border-t pt-3">
+                    <Section title="Revisions">
+                      <CreativeRevisions />
+                    </Section>
+                  </div>
+                )}
               </div>
             </motion.div>
           ) : (

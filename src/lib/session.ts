@@ -1,8 +1,11 @@
 import localforage from 'localforage'
 import type { Adjustments } from './adjustments/types'
+import type { Revision } from './image/revision-state'
 
 type Session = {
   image: Blob
+  revisions: Array<Revision>
+  revisionId: string
   lutId: string
   intensity: number
   adjustments: Adjustments

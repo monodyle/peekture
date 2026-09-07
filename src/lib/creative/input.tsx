@@ -4,6 +4,7 @@ import { Eye, EyeOff, Sparkles } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { cn } from '../cn'
 import { base64ToBlob } from '../image/encode'
+import { useAddRevision } from '../image/revision-state'
 import { useImage } from '../image/state'
 import { useLoadImage } from '../image/use-load-image'
 import persisted, { type GeminiModel } from '../persisted'
@@ -59,6 +60,7 @@ export default function CreativeInput() {
   const image = useImage()
   const loadImage = useLoadImage()
   const toast = useToast()
+  const addRevision = useAddRevision()
 
   const [geminiApiKey, setGeminiApiKey] = useState(() =>
     persisted.read((state) => state.geminiApiKey),
@@ -89,7 +91,7 @@ export default function CreativeInput() {
     generate(
       { prompt, image },
       {
-        onSuccess: (result) => {
+        onSuccess: async (result) => {
           if (!result.image) {
             toast.add({
               title: 'No image returned',
@@ -97,15 +99,18 @@ export default function CreativeInput() {
             })
             return
           }
-          loadImage(base64ToBlob(result.image, result.mimeType))
-          setPrompt('')
+          const blob = base64ToBlob(result.image, result.mimeType)
+          if (await loadImage(blob)) {
+            addRevision(prompt, blob)
+            setPrompt('')
+          }
         },
         onError: (error) => {
           toast.add({ title: 'Generation failed', description: error.message })
         },
       },
     )
-  }, [generate, prompt, image, loadImage, toast])
+  }, [generate, prompt, image, loadImage, addRevision, toast])
 
   const canGenerate =
     !isGenerating && prompt.trim() !== '' && geminiApiKey !== ''

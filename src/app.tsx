@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useEffect, useState } from 'react'
 import AdjustmentsStateProvider from './lib/adjustments/state'
+import RevisionStateProvider from './lib/image/revision-state'
 import ImageStateProvider from './lib/image/state'
 import LUTStateProvider from './lib/lut/state'
 import persisted from './lib/persisted'
@@ -33,7 +34,9 @@ export default function App() {
               <AdjustmentsStateProvider
                 initialAdjustments={restored.adjustments}
               >
-                <Screen />
+                <RevisionStateProvider initialHistory={restored.history}>
+                  <Screen />
+                </RevisionStateProvider>
               </AdjustmentsStateProvider>
             </LUTStateProvider>
           </ImageStateProvider>

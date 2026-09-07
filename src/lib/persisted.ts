@@ -5,12 +5,14 @@ import { createExampleLUTs } from './lut/examples'
 import type { LUT } from './lut/types'
 
 export type HistogramMode = 'overlay' | 'separate'
+export type HistogramScale = '10-bit' | '12-bit' | 'nits'
 
 type Store = {
   luts: Array<LUT>
   geminiApiKey: string
   examplesSeeded: boolean
   histogramMode: HistogramMode
+  histogramScale: HistogramScale
 }
 
 const defaultStore: Store = {
@@ -18,6 +20,7 @@ const defaultStore: Store = {
   geminiApiKey: '',
   examplesSeeded: false,
   histogramMode: 'overlay',
+  histogramScale: '10-bit',
 }
 
 const DB_NAME = 'peekture'

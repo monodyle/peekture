@@ -15,7 +15,7 @@ export default function Screen() {
   }
 
   return (
-    <div className="grid h-screen grid-cols-[minmax(0,1fr)_300px] gap-4 p-4">
+    <div className="grid h-screen grid-cols-[minmax(0,1fr)_340px] gap-4 p-4">
       <PreviewContainer />
       <Sidebar />
     </div>

@@ -1,5 +1,4 @@
 import AdjustmentsSection from './adjustments/section'
-import CreativeInput from './creative/input'
 import HistogramSection from './histogram'
 import ImageReplace from './image/replace'
 import LUTIntensity from './lut/intensity'
@@ -15,9 +14,6 @@ export default function Sidebar() {
       <Section title="Filters" actions={<LUTUploadAction />}>
         <LUTIntensity />
         <LUTList />
-      </Section>
-      <Section title="Creative" defaultOpen={false}>
-        <CreativeInput />
       </Section>
     </Panel>
   )

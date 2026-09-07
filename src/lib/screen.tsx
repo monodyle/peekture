@@ -1,3 +1,4 @@
+import CreativeFloating from './creative/floating'
 import { useImage } from './image/state'
 import ImageUpload from './image/upload'
 import PreviewContainer from './preview/container'
@@ -18,6 +19,7 @@ export default function Screen() {
     <div className="grid h-screen grid-cols-[minmax(0,1fr)_340px] gap-4 p-4">
       <PreviewContainer />
       <Sidebar />
+      <CreativeFloating />
     </div>
   )
 }

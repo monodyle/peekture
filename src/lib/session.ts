@@ -1,13 +1,11 @@
 import localforage from 'localforage'
-import type { Exposure } from './exposure/types'
-import type { WhiteBalance } from './white-balance/types'
+import type { Adjustments } from './adjustments/types'
 
 type Session = {
   image: Blob
   lutId: string
   intensity: number
-  whiteBalance: WhiteBalance
-  exposure: Exposure
+  adjustments: Adjustments
 }
 
 // Kept apart from the main store so the image blob is not rewritten

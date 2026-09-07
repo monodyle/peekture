@@ -1,8 +1,7 @@
 import { useCallback } from 'react'
-import { useResetExposure } from '../exposure/state'
+import { useResetAdjustments } from '../adjustments/state'
 import { useResetEdits } from '../lut/state'
 import { useToast } from '../ui/toast'
-import { useResetWhiteBalance } from '../white-balance/state'
 import {
   ImageTooLargeError,
   loadImage,
@@ -17,8 +16,7 @@ export function useLoadImage() {
   const setImage = useSetImage()
   const { startLoading, finishLoading } = useImageLoading()
   const resetEdits = useResetEdits()
-  const resetWhiteBalance = useResetWhiteBalance()
-  const resetExposure = useResetExposure()
+  const resetAdjustments = useResetAdjustments()
   const toast = useToast()
 
   return useCallback(
@@ -28,8 +26,7 @@ export function useLoadImage() {
         const image = await loadImage(source)
         setImage(image)
         resetEdits()
-        resetWhiteBalance()
-        resetExposure()
+        resetAdjustments()
         if (image.resized) {
           toast.add({
             title: 'Large image',
@@ -54,8 +51,7 @@ export function useLoadImage() {
     [
       setImage,
       resetEdits,
-      resetWhiteBalance,
-      resetExposure,
+      resetAdjustments,
       startLoading,
       finishLoading,
       toast,

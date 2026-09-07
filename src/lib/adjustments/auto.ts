@@ -1,6 +1,6 @@
 import { gainsToWhiteBalance } from './apply'
-import { clampValue } from './presets'
-import type { WhiteBalance } from './types'
+import { clampValue } from './defaults'
+import type { Adjustments } from './types'
 
 // Pixels near black or white carry little colour information and skew the
 // average, so they are left out.
@@ -19,7 +19,9 @@ function bitmapToImageData(bitmap: ImageBitmap): ImageData | null {
 
 // Gray world: assume the scene averages to neutral gray and pick gains that
 // make the mean of each channel equal.
-export function estimateWhiteBalance(bitmap: ImageBitmap): WhiteBalance | null {
+export function estimateWhiteBalance(
+  bitmap: ImageBitmap,
+): Pick<Adjustments, 'temperature' | 'tint'> | null {
   const imageData = bitmapToImageData(bitmap)
   if (!imageData) return null
 
@@ -48,8 +50,7 @@ export function estimateWhiteBalance(bitmap: ImageBitmap): WhiteBalance | null {
     b: mean / sumB,
   })
   return {
-    mode: 'custom',
-    temperature: clampValue(temperature),
-    tint: clampValue(tint),
+    temperature: clampValue('temperature', temperature),
+    tint: clampValue('tint', tint),
   }
 }

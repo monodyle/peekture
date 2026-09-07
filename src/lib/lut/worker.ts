@@ -1,7 +1,5 @@
-import { applyExposure } from '../exposure/apply'
-import type { Exposure } from '../exposure/types'
-import { applyWhiteBalance } from '../white-balance/apply'
-import type { WhiteBalance } from '../white-balance/types'
+import { applyAdjustments } from '../adjustments/apply'
+import type { Adjustments } from '../adjustments/types'
 import { applyParsedLUT, parseLUT } from './apply'
 import type { LUT } from './types'
 
@@ -17,8 +15,7 @@ export type LUTWorkerRequest =
       id: number
       lut: LUT
       intensity: number
-      whiteBalance: WhiteBalance
-      exposure: Exposure
+      adjustments: Adjustments
     }
 
 export type LUTWorkerResponse = {
@@ -47,8 +44,7 @@ scope.onmessage = (event: MessageEvent<LUTWorkerRequest>) => {
   if (!source) return
 
   const output = new ImageData(source.data.slice(), source.width, source.height)
-  applyWhiteBalance(output, message.whiteBalance)
-  applyExposure(output, message.exposure)
+  applyAdjustments(output, message.adjustments)
   applyParsedLUT(output, parseLUT(message.lut), message.intensity)
 
   const response: LUTWorkerResponse = {

@@ -1,19 +1,17 @@
 import { useCallback, useEffect, useRef } from 'react'
-import type { Exposure } from '../exposure/types'
-import type { WhiteBalance } from '../white-balance/types'
+import type { Adjustments } from '../adjustments/types'
 import type { LUT } from './types'
 import type { LUTWorkerRequest, LUTWorkerResponse } from './worker'
 
 type Job = {
   lut: LUT
   intensity: number
-  whiteBalance: WhiteBalance
-  exposure: Exposure
+  adjustments: Adjustments
   onDone: (result: ImageData) => void
 }
 
 // The worker owns a copy of the source pixels. Each job only sends the LUT,
-// intensity, white balance and exposure. One job runs at a time and only the latest pending job is
+// intensity and adjustments. One job runs at a time and only the latest pending job is
 // kept, so a fast slider drag never queues up stale frames.
 export function useLUTWorker() {
   const workerRef = useRef<Worker | null>(null)
@@ -37,8 +35,7 @@ export function useLUTWorker() {
       id: idRef.current,
       lut: job.lut,
       intensity: job.intensity,
-      whiteBalance: job.whiteBalance,
-      exposure: job.exposure,
+      adjustments: job.adjustments,
     }
     worker.postMessage(request)
   }, [])

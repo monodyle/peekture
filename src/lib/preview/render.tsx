@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { useAdjustments } from '../adjustments/state'
 import { cn } from '../cn'
-import { useExposure } from '../exposure/state'
 import { useImage, useImageLoading } from '../image/state'
 import { useIntensity, useLUT } from '../lut/state'
 import { useLUTWorker } from '../lut/use-lut-worker'
-import { useWhiteBalance } from '../white-balance/state'
 import { type Size, useBoxSize } from './use-box-size'
 
 const RESIZE_DELAY_MS = 150
@@ -42,8 +41,7 @@ export default function Render({ zoom }: RenderProps) {
   const { finishLoading } = useImageLoading()
   const lut = useLUT()
   const intensity = useIntensity()
-  const whiteBalance = useWhiteBalance()
-  const exposure = useExposure()
+  const adjustments = useAdjustments()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
   const size = useDebounced(useBoxSize(boxRef), RESIZE_DELAY_MS)
@@ -77,8 +75,7 @@ export default function Render({ zoom }: RenderProps) {
     apply({
       lut,
       intensity: intensity / 100,
-      whiteBalance,
-      exposure,
+      adjustments,
       onDone: (result) => {
         const ctx = canvas.getContext('2d')
         if (!ctx) return
@@ -89,15 +86,7 @@ export default function Render({ zoom }: RenderProps) {
         finishLoading()
       },
     })
-  }, [
-    sourceVersion,
-    lut,
-    intensity,
-    whiteBalance,
-    exposure,
-    apply,
-    finishLoading,
-  ])
+  }, [sourceVersion, lut, intensity, adjustments, apply, finishLoading])
 
   return (
     <div

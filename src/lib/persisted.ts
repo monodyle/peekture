@@ -6,10 +6,16 @@ import type { LUT } from './lut/types'
 
 export type HistogramMode = 'overlay' | 'separate'
 export type HistogramScale = '10-bit' | '12-bit' | 'nits'
+export type GeminiModel =
+  | 'gemini-2.5-flash-image'
+  | 'gemini-3-pro-image'
+  | 'gemini-3.1-flash-image'
+  | 'gemini-3.1-flash-lite-image'
 
 type Store = {
   luts: Array<LUT>
   geminiApiKey: string
+  geminiModel: GeminiModel
   examplesSeeded: boolean
   histogramMode: HistogramMode
   histogramScale: HistogramScale
@@ -18,6 +24,7 @@ type Store = {
 const defaultStore: Store = {
   luts: [],
   geminiApiKey: '',
+  geminiModel: 'gemini-2.5-flash-image',
   examplesSeeded: false,
   histogramMode: 'overlay',
   histogramScale: '10-bit',

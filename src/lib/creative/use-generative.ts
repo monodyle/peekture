@@ -7,16 +7,26 @@ import {
 import { useMutation } from '@tanstack/react-query'
 import { bitmapToBlob, blobToBase64 } from '../image/encode'
 import type { LoadedImage } from '../image/load'
-import persisted from '../persisted'
+import persisted, { type GeminiModel } from '../persisted'
 
 export const GENERATIVE_MUTATION_KEY = 'generative' as const
 
 const DEFAULT_MIME_TYPE = 'image/png'
 
-function createModel(apiKey: string) {
+export const GEMINI_MODEL_OPTIONS: Array<{
+  value: GeminiModel
+  label: string
+}> = [
+  { value: 'gemini-2.5-flash-image', label: 'Nano Banana' },
+  { value: 'gemini-3-pro-image', label: 'Nano Banana Pro' },
+  { value: 'gemini-3.1-flash-image', label: 'Nano Banana 2' },
+  { value: 'gemini-3.1-flash-lite-image', label: 'Nano Banana 2 Lite' },
+]
+
+function createModel(apiKey: string, model: GeminiModel) {
   const client = new GoogleGenerativeAI(apiKey)
   return client.getGenerativeModel({
-    model: 'gemini-2.0-flash-exp-image-generation',
+    model,
     generationConfig: {
       temperature: 1,
       topP: 0.95,
@@ -67,7 +77,8 @@ export function useGenerative() {
         throw new Error('No Gemini API key found')
       }
 
-      const chat = createModel(apiKey).startChat({ history })
+      const model = persisted.read((state) => state.geminiModel)
+      const chat = createModel(apiKey, model).startChat({ history })
       const { response } = await chat.sendMessage(
         await buildMessageParts(prompt, image),
       )

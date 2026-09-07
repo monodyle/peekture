@@ -1,15 +1,16 @@
 import { Toggle } from '@base-ui/react/toggle'
+import { SelectControl } from 'dialkit'
 import { Eye, EyeOff, Sparkles } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { cn } from '../cn'
 import { base64ToBlob } from '../image/encode'
 import { useImage } from '../image/state'
 import { useLoadImage } from '../image/use-load-image'
-import persisted from '../persisted'
+import persisted, { type GeminiModel } from '../persisted'
 import { ActionButton } from '../ui/panel'
 import { useToast } from '../ui/toast'
 import { Tooltip } from '../ui/tooltip'
-import { useGenerative } from './use-generative'
+import { GEMINI_MODEL_OPTIONS, useGenerative } from './use-generative'
 
 type ApiKeyControlProps = {
   value: string
@@ -69,6 +70,17 @@ export default function CreativeInput() {
     })
   }, [])
 
+  const [geminiModel, setGeminiModel] = useState(() =>
+    persisted.read((state) => state.geminiModel),
+  )
+  const handleGeminiModelChange = useCallback((value: string) => {
+    const next = value as GeminiModel
+    setGeminiModel(next)
+    persisted.write((draft) => {
+      draft.geminiModel = next
+    })
+  }, [])
+
   const { mutate: generate, isPending: isGenerating } = useGenerative()
 
   const handleGenerate = useCallback(() => {
@@ -104,6 +116,12 @@ export default function CreativeInput() {
         value={geminiApiKey}
         onChange={handleGeminiApiKeyChange}
         disabled={isGenerating}
+      />
+      <SelectControl
+        label="Model"
+        value={geminiModel}
+        options={GEMINI_MODEL_OPTIONS}
+        onChange={handleGeminiModelChange}
       />
       <div className="rounded-row bg-surface px-3 py-2.5">
         <textarea
